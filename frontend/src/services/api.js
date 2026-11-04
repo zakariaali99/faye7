@@ -42,14 +42,22 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
-        // Determine if this request originated from the dashboard
-        const requestUrl = originalRequest?.url || '';
-        const isDashboardRequest = requestUrl.includes('accounts/') ||
-            requestUrl.includes('analytics/') ||
-            requestUrl.includes('cms/') ||
-            requestUrl.includes('crm/') ||
-            requestUrl.includes('admin/') ||
-            requestUrl.includes('backups/');
+        // Only dashboard pages send people to the login screen. On store pages an expired login is
+        // dropped and the request is retried as a guest (public endpoints reject a stale token).
+        const onDashboard = window.location.pathname.startsWith('/dashboard');
+
+        const signOutAndContinue = () => {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user');
+            if (onDashboard) {
+                window.location.href = '/dashboard/login';
+                return new Promise(() => {});
+            }
+            delete originalRequest.headers.Authorization;
+            delete api.defaults.headers.common.Authorization;
+            return api(originalRequest);
+        };
 
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
@@ -61,20 +69,19 @@ api.interceptors.response.use(
                     });
                     localStorage.setItem('access_token', res.data.access);
                     api.defaults.headers.common.Authorization = `Bearer ${res.data.access}`;
+                    originalRequest.headers.Authorization = `Bearer ${res.data.access}`;
                     return api(originalRequest);
                 } catch {
-                    localStorage.removeItem('access_token');
-                    localStorage.removeItem('refresh_token');
-                    if (isDashboardRequest) {
-                        window.location.href = '/dashboard/login';
-                        return new Promise(() => {});
-                    }
+                    return signOutAndContinue();
                 }
-            } else {
-                if (isDashboardRequest) {
-                    window.location.href = '/dashboard/login';
-                    return new Promise(() => {});
-                }
+            }
+            // This request carried a login that is no longer valid (parallel requests may already have cleared it).
+            if (originalRequest.headers?.Authorization) {
+                return signOutAndContinue();
+            }
+            if (onDashboard) {
+                window.location.href = '/dashboard/login';
+                return new Promise(() => {});
             }
         }
         return Promise.reject(error);

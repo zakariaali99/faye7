@@ -34,7 +34,7 @@ try:
                 f.write(traceback.format_exc())
             
             status = '500 Internal Server Error'
-            output = f"System Error: {str(e)}".encode('utf-8')
+            output = 'Server error. Details are in error_log.txt.'.encode('utf-8')  # never show internals to visitors
             response_headers = [('Content-type', 'text/plain'), ('Content-Length', str(len(output)))]
             start_response(status, response_headers)
             return [output]
@@ -48,7 +48,7 @@ except Exception as e:
     
     def application(environ, start_response):
         status = '500 Internal Server Error'
-        output = f"Critical Startup Error: {str(_startup_error)}".encode('utf-8')
+        output = 'Server error. Details are in error_log.txt.'.encode('utf-8')
         response_headers = [('Content-type', 'text/plain'), ('Content-Length', str(len(output)))]
         start_response(status, response_headers)
         return [output]

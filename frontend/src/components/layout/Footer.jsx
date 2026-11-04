@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, Mail } from 'lucide-react';
 import { PHONE, EMAIL, SocialIcons } from './social';
+import Logo from '../common/Logo';
 
 const Footer = () => {
     return (
@@ -8,7 +9,7 @@ const Footer = () => {
             <div className="t-container py-12 md:py-16">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
                     <div className="md:col-span-2">
-                        <h2 className="t-head text-2xl mb-3">عطور فايح</h2>
+                        <Logo className="h-10 w-auto mb-4" />
                         <p className="text-[var(--t-muted)] leading-relaxed max-w-md mb-6">
                             تقسيمات العطور من مكتبتي الخاصة،
                             <br />

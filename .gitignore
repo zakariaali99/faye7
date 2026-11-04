@@ -41,3 +41,7 @@ seed_preview.py
 
 # Local dev admin login
 backend/.local-admin.txt
+
+# Runtime data: uploaded photos and the database travel in the data package, not git
+backend/media/
+deploy-data/

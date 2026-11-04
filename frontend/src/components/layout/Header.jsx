@@ -1,4 +1,3 @@
-import logoImg from '../../assets/logo.png';
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ShoppingBag, Search, Menu, User, X, Phone, ChevronDown, ChevronLeft } from 'lucide-react';
@@ -8,6 +7,7 @@ import useSettingsStore from '../../store/settingsStore';
 import CartDrawer from '../cart/CartDrawer';
 import { productsApi } from '../../services/api';
 import { PHONE, SocialIcons } from './social';
+import Logo from '../common/Logo';
 
 const DEFAULT_BANNER = 'توصيل لكل مدن ليبيا · الدفع عند الاستلام';
 
@@ -113,9 +113,8 @@ const Header = () => {
                         </button>
                     </div>
 
-                    <Link to="/" className="flex items-center gap-3 shrink-0 justify-self-center">
-                        <img src={logoImg} alt="عطور فايح" className="w-10 h-10 md:w-12 md:h-12 object-contain" />
-                        <span className="t-head text-lg md:text-2xl text-[var(--t-ink)] leading-none">عطور فايح</span>
+                    <Link to="/" aria-label="عطور فايح - الرئيسية" className="shrink-0 justify-self-center text-[var(--t-ink)]">
+                        <Logo className="h-8 md:h-10 w-auto" />
                     </Link>
 
                     <nav className="hidden lg:flex items-center gap-7 flex-1">
@@ -218,7 +217,7 @@ const Header = () => {
                             dir="rtl"
                         >
                             <div className="h-16 px-5 border-b border-[var(--t-line)] flex justify-between items-center">
-                                <span className="t-head text-lg text-[var(--t-ink)]">عطور فايح</span>
+                                <Logo className="h-7 w-auto text-[var(--t-ink)]" />
                                 <button onClick={() => setIsMobileMenuOpen(false)} aria-label="إغلاق" className="p-2 -ml-2 text-[var(--t-ink)]">
                                     <X size={22} strokeWidth={1.5} />
                                 </button>

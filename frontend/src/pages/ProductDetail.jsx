@@ -1,3 +1,4 @@
+import bottleIcon from '../assets/logo.png';
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { productsApi } from '../services/api';
@@ -27,6 +28,7 @@ const ProductDetail = () => {
     const [loading, setLoading] = useState(true);
     const [selectedVariant, setSelectedVariant] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
+    const [failedImage, setFailedImage] = useState(null);
     const [quantity, setQuantity] = useState(1);
     const [showComingSoon, setShowComingSoon] = useState(false);
     const comingSoonRef = useRef(null);
@@ -117,14 +119,19 @@ const ProductDetail = () => {
                     {/* Left: Images */}
                     <div className="space-y-6">
                         <div className="aspect-square bg-[var(--t-surface)] rounded-[var(--t-radius)] overflow-hidden relative group flex items-center justify-center p-6 md:p-10">
-                            <motion.img
-                                key={selectedImage}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                src={selectedImage}
-                                alt={product.name_ar}
-                                className="w-full h-full object-contain mix-blend-multiply"
-                            />
+                            {selectedImage && failedImage !== selectedImage ? (
+                                <motion.img
+                                    key={selectedImage}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    src={selectedImage}
+                                    alt={product.name_ar}
+                                    onError={() => setFailedImage(selectedImage)}
+                                    className="w-full h-full object-contain mix-blend-multiply"
+                                />
+                            ) : (
+                                <img src={bottleIcon} alt="" className="w-1/4 opacity-15" />
+                            )}
                             <div className="absolute top-6 left-6 space-y-3">
                             <div className="relative">
                                 <button
