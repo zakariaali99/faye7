@@ -116,14 +116,14 @@ const ProductDetail = () => {
 
                     {/* Left: Images */}
                     <div className="space-y-6">
-                        <div className="aspect-square bg-cream-50 dark:bg-dark-700 rounded-[40px] overflow-hidden border border-gold-100/50 dark:border-dark-500 shadow-sm relative group flex items-center justify-center p-4">
+                        <div className="aspect-square bg-[var(--t-surface)] rounded-[var(--t-radius)] overflow-hidden relative group flex items-center justify-center p-6 md:p-10">
                             <motion.img
                                 key={selectedImage}
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 src={selectedImage}
                                 alt={product.name_ar}
-                                className="w-full h-full object-contain"
+                                className="w-full h-full object-contain mix-blend-multiply"
                             />
                             <div className="absolute top-6 left-6 space-y-3">
                             <div className="relative">
@@ -160,17 +160,17 @@ const ProductDetail = () => {
                             <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
                                 <button
                                     onClick={() => setSelectedImage(product.main_image)}
-                                    className={`w-24 h-24 rounded-2xl overflow-hidden border-2 flex-shrink-0 transition-all ${selectedImage === product.main_image ? 'border-gold-500 shadow-md scale-105' : 'border-transparent hover:border-gold-300'}`}
+                                    className={`w-24 h-24 rounded-2xl overflow-hidden bg-[var(--t-surface)] border-2 flex-shrink-0 transition-all ${selectedImage === product.main_image ? 'border-gold-500 shadow-md scale-105' : 'border-transparent hover:border-gold-300'}`}
                                 >
-                                    <img src={product.main_image} className="w-full h-full object-cover" />
+                                    <img src={product.main_image} alt="" className="w-full h-full object-contain p-1.5 mix-blend-multiply" />
                                 </button>
                                 {product.images.map((img, idx) => (
                                     <button
                                         key={idx}
                                         onClick={() => setSelectedImage(img.image)}
-                                        className={`w-24 h-24 rounded-2xl overflow-hidden border-2 flex-shrink-0 transition-all ${selectedImage === img.image ? 'border-gold-500 shadow-md scale-105' : 'border-transparent hover:border-gold-300'}`}
+                                        className={`w-24 h-24 rounded-2xl overflow-hidden bg-[var(--t-surface)] border-2 flex-shrink-0 transition-all ${selectedImage === img.image ? 'border-gold-500 shadow-md scale-105' : 'border-transparent hover:border-gold-300'}`}
                                     >
-                                        <img src={img.image} className="w-full h-full object-cover" />
+                                        <img src={img.image} alt="" className="w-full h-full object-contain p-1.5 mix-blend-multiply" />
                                     </button>
                                 ))}
                             </div>

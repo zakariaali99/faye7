@@ -19,7 +19,7 @@ const fallbackCategories = [
 const Header = () => {
     const { cart } = useCartStore();
     const settings = useSettingsStore(state => state.settings);
-    const bannerText = settings ? (settings.top_banner_is_active ? settings.top_banner_text : '') : DEFAULT_BANNER;
+    const bannerText = settings ? (settings.top_banner_is_active ? (settings.top_banner_text || DEFAULT_BANNER) : '') : DEFAULT_BANNER;
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);

@@ -38,3 +38,6 @@ private_backups/
 # Local preview photos (from the old system, not for the repo)
 backend/media/preview/
 seed_preview.py
+
+# Local dev admin login
+backend/.local-admin.txt

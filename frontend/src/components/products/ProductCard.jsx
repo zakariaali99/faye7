@@ -13,7 +13,7 @@ const ProductCard = ({ product }) => {
                     src={product.main_image || 'https://placehold.co/400x500/F3F3F3/9A9A9A?text=Perfume'}
                     alt={product.name_ar}
                     loading="lazy"
-                    className="w-full h-full object-cover mix-blend-multiply transition-transform duration-500 group-hover:scale-[1.04]"
+                    className="w-full h-full object-contain p-3 md:p-5 mix-blend-multiply transition-transform duration-500 group-hover:scale-[1.04]"
                 />
                 {badge && (
                     <span className="absolute top-3 right-3 bg-[var(--t-bg)] text-[var(--t-ink)] text-[11px] px-2.5 py-1 rounded-[var(--t-radius-btn)] border border-[var(--t-line)]">

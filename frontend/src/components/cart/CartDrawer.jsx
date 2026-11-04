@@ -70,7 +70,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                                                 <img
                                                     src={item.variant.product_main_image}
                                                     alt={item.variant.product_name_ar}
-                                                    className="w-full h-full object-cover"
+                                                    className="w-full h-full object-contain p-1 mix-blend-multiply"
                                                 />
                                             ) : (
                                                 <div className="w-full h-full flex items-center justify-center text-gold-400 text-2xl">🌸</div>

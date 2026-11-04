@@ -101,7 +101,7 @@ const Home = () => {
                         <Link key={cat.id} to={`/products?category=${cat.id}`} className="group block">
                             <div className="aspect-square overflow-hidden bg-[var(--t-surface)] rounded-[var(--t-radius)]">
                                 {cat.image ? (
-                                    <img src={cat.image} alt={cat.name_ar} loading="lazy" className="w-full h-full object-cover mix-blend-multiply transition-transform duration-500 group-hover:scale-[1.04]" />
+                                    <img src={cat.image} alt={cat.name_ar} loading="lazy" className="w-full h-full object-contain p-3 md:p-5 mix-blend-multiply transition-transform duration-500 group-hover:scale-[1.04]" />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center t-head text-2xl md:text-3xl text-[var(--t-muted)]">{cat.name_ar}</div>
                                 )}
@@ -140,7 +140,7 @@ const Home = () => {
                 <div className="t-container">
                     <div className="grid md:grid-cols-2 items-center gap-6 md:gap-12 bg-[var(--t-surface)] rounded-[var(--t-radius)] overflow-hidden">
                         <div className="aspect-[4/3] md:aspect-auto md:h-full md:min-h-[420px]">
-                            <img src={banners[0].image} className="w-full h-full object-cover mix-blend-multiply" alt={banners[0].title || ''} loading="lazy" />
+                            <img src={banners[0].image} className="w-full h-full object-contain p-6 mix-blend-multiply" alt={banners[0].title || ''} loading="lazy" />
                         </div>
                         <div className="p-6 pt-0 md:p-12">
                             <h2 className="t-head text-3xl md:text-5xl text-[var(--t-ink)] leading-tight mb-5">{banners[0].title}</h2>

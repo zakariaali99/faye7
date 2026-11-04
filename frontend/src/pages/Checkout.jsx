@@ -427,7 +427,7 @@ const Checkout = () => {
                                         <div className="w-16 h-16 bg-cream-50 dark:bg-dark-600 rounded-xl overflow-hidden border border-gold-50 dark:border-dark-500 flex-shrink-0">
                                             <img
                                                 src={item.variant.product_main_image || 'https://placehold.co/100x100'}
-                                                className="w-full h-full object-cover"
+                                                className="w-full h-full object-contain p-1 mix-blend-multiply"
                                                 alt={item.variant.product_name_ar}
                                             />
                                         </div>

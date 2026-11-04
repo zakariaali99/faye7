@@ -11,6 +11,10 @@ npm run build
 echo "=== Copying new assets to backend/static/frontend/assets/ ==="
 cp -R dist/assets/* "$BACKEND_STATIC/assets/"
 
+echo "=== Copying theme previews to backend/static/frontend/themes/ ==="
+mkdir -p "$BACKEND_STATIC/themes"
+cp -R dist/themes/* "$BACKEND_STATIC/themes/"
+
 echo "=== Fixing favicon path in built index.html ==="
 # Vite copies public/logo.png to dist/ with href="/logo.png"
 # In production, it's served at /static/frontend/logo.png
