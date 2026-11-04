@@ -1,0 +1,312 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-gold-50: #fbf8f1;
+  --color-gold-100: #f5eedb;
+  --color-gold-200: #eadcb9;
+  --color-gold-300: #dbbf8c;
+  --color-gold-400: #c9a364;
+  --color-gold-500: #c5a572;
+  /* Main Gold */
+  --color-gold-600: #a9804b;
+  --color-gold-700: #8d663e;
+
+  --color-cream-50: #fdfbf7;
+  --color-cream-100: #f5f0e8;
+
+  /* Dark theme colors */
+  --color-dark-900: #0A0908;
+  --color-dark-800: #12100C;
+  --color-dark-700: #1A150D;
+  --color-dark-600: #2C2416;
+  --color-dark-500: #45351E;
+
+  --color-text-primary: #2C2416;
+  --color-text-secondary: #6B5D4D;
+  --color-text-muted: #9B8B7A;
+
+  --font-tajawal: "Tajawal", sans-serif;
+  --font-poppins: "Poppins", sans-serif;
+}
+
+:root {
+  --bg-primary: #FDFBF7;
+  --bg-secondary: #ffffff;
+  --text-primary: #2C2416;
+  --text-secondary: #6B5D4D;
+  --border-color: #f5eedb;
+  --card-bg: #ffffff;
+  --input-bg: #fdfbf7;
+}
+
+.dark {
+  --bg-primary: #0A0908;
+  --bg-secondary: #12100C;
+  --text-primary: #FDFBF7;
+  --text-secondary: #A9804B;
+  --border-color: #2C2416;
+  --card-bg: #1A150D;
+  --input-bg: #12100C;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-tajawal);
+  direction: rtl;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode utility classes */
+.bg-card {
+  background-color: var(--card-bg);
+}
+
+.bg-input {
+  background-color: var(--input-bg);
+}
+
+.border-theme {
+  border-color: var(--border-color);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c5a572;
+  border-radius: 10px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #12100C;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out forwards;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #c5a572;
+  border-radius: 10px;
+}
+
+.bg-luxury-pattern {
+  background-image: radial-gradient(circle at 1px 1px, rgba(197, 165, 114, 0.15) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+/* ===================== Storefront themes (Shopify-style) =====================
+   The store wrapper carries data-theme. Each theme sets a few --t-* values; the
+   existing gold/cream/text tokens are remapped from them, so every store page
+   follows the theme. The dashboard has no data-theme and keeps its own look. */
+[data-theme="dawn"] {
+  --t-bg: #ffffff;
+  --t-surface: #f3f3f3;
+  --t-ink: #121212;
+  --t-muted: #5c5c5c;
+  --t-line: #e6e6e6;
+  --t-accent: #121212;
+  --t-sale: #c0392b;
+  --t-btn: #121212;
+  --t-btn-ink: #ffffff;
+  --t-dark: #121212;
+  --t-radius: 0px;
+  --t-radius-btn: 0px;
+  --t-font: "IBM Plex Sans Arabic", "Tajawal", sans-serif;
+  --t-font-head: "IBM Plex Sans Arabic", "Tajawal", sans-serif;
+  --t-head-weight: 600;
+}
+
+[data-theme="prestige"] {
+  --t-bg: #f8f5f0;
+  --t-surface: #efe9df;
+  --t-ink: #1c1b1b;
+  --t-muted: #6b6560;
+  --t-line: #e2dace;
+  --t-accent: #9a7b4f;
+  --t-sale: #9a3b2e;
+  --t-btn: #1c1b1b;
+  --t-btn-ink: #f8f5f0;
+  --t-dark: #1c1b1b;
+  --t-radius: 0px;
+  --t-radius-btn: 0px;
+  --t-font: "Tajawal", sans-serif;
+  --t-font-head: "Amiri", "Tajawal", serif;
+  --t-head-weight: 700;
+}
+
+[data-theme="sense"] {
+  --t-bg: #fdf8f3;
+  --t-surface: #f6ece2;
+  --t-ink: #2d2420;
+  --t-muted: #75655b;
+  --t-line: #eadccf;
+  --t-accent: #c0674a;
+  --t-sale: #c0674a;
+  --t-btn: #c0674a;
+  --t-btn-ink: #ffffff;
+  --t-dark: #3a2a24;
+  --t-radius: 18px;
+  --t-radius-btn: 999px;
+  --t-font: "Readex Pro", "Tajawal", sans-serif;
+  --t-font-head: "Readex Pro", "Tajawal", sans-serif;
+  --t-head-weight: 600;
+}
+
+[data-theme] {
+  --color-gold-50: color-mix(in srgb, var(--t-accent) 6%, var(--t-bg));
+  --color-gold-100: color-mix(in srgb, var(--t-accent) 12%, var(--t-bg));
+  --color-gold-200: color-mix(in srgb, var(--t-accent) 25%, var(--t-bg));
+  --color-gold-300: color-mix(in srgb, var(--t-accent) 45%, var(--t-bg));
+  --color-gold-400: color-mix(in srgb, var(--t-accent) 75%, var(--t-bg));
+  --color-gold-500: var(--t-accent);
+  --color-gold-600: var(--t-accent);
+  --color-gold-700: color-mix(in srgb, var(--t-accent) 80%, black);
+  --color-cream-50: var(--t-bg);
+  --color-cream-100: var(--t-surface);
+  --color-dark-900: var(--t-dark);
+  --color-dark-800: var(--t-dark);
+  --color-dark-700: color-mix(in srgb, var(--t-dark) 90%, white);
+  --color-dark-600: color-mix(in srgb, var(--t-dark) 80%, white);
+  --color-dark-500: color-mix(in srgb, var(--t-dark) 70%, white);
+  --color-text-primary: var(--t-ink);
+  --color-text-secondary: var(--t-muted);
+  --color-text-muted: color-mix(in srgb, var(--t-muted) 70%, var(--t-bg));
+  --font-tajawal: var(--t-font);
+  --font-weight-black: 700;
+  --font-weight-extrabold: 600;
+  --radius-lg: min(var(--t-radius), 8px);
+  --radius-xl: var(--t-radius);
+  --radius-2xl: var(--t-radius);
+  --radius-3xl: var(--t-radius);
+  --shadow-lg: 0 4px 14px rgb(0 0 0 / 0.05);
+  --shadow-xl: 0 6px 20px rgb(0 0 0 / 0.06);
+  --shadow-2xl: 0 10px 30px rgb(0 0 0 / 0.08);
+  --bg-primary: var(--t-bg);
+  background-color: var(--t-bg);
+  color: var(--t-ink);
+  font-family: var(--t-font);
+}
+
+[data-theme] .t-head {
+  font-family: var(--t-font-head);
+  font-weight: var(--t-head-weight);
+  letter-spacing: 0;
+}
+
+[data-theme] .t-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--t-btn);
+  color: var(--t-btn-ink);
+  border: 1px solid var(--t-btn);
+  border-radius: var(--t-radius-btn);
+  padding: 0.85rem 2rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+[data-theme] .t-btn:hover {
+  box-shadow: 0 0 0 1px var(--t-btn);
+  opacity: 0.92;
+}
+
+[data-theme] .t-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: transparent;
+  color: var(--t-ink);
+  border: 1px solid var(--t-ink);
+  border-radius: var(--t-radius-btn);
+  padding: 0.85rem 2rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: box-shadow 0.2s ease;
+}
+
+[data-theme] .t-btn-outline:hover {
+  box-shadow: 0 0 0 1px var(--t-ink);
+}
+
+[data-theme] .t-link {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+}
+
+[data-theme] .t-container {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 768px) {
+  [data-theme] .t-container {
+    padding-inline: 2.5rem;
+  }
+}
+
+[data-theme] .swiper-pagination-bullet-active {
+  background: var(--t-ink) !important;
+}

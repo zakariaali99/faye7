@@ -1,0 +1,92 @@
+from django.db.models import Count
+from rest_framework import viewsets, filters, status, permissions
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
+from .models import CustomerProfile, CustomerTag, CustomerInteraction
+from .serializers import (
+    CustomerProfileSerializer,
+    CustomerProfileDetailSerializer,
+    CustomerTagSerializer,
+    CustomerInteractionSerializer
+)
+
+
+class CustomerTagViewSet(viewsets.ModelViewSet):
+    queryset = CustomerTag.objects.all()
+    serializer_class = CustomerTagSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+
+class CustomerInteractionViewSet(viewsets.ModelViewSet):
+    queryset = CustomerInteraction.objects.select_related('customer', 'created_by').order_by('-created_at')
+    serializer_class = CustomerInteractionSerializer
+    permission_classes = [permissions.IsAdminUser]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['customer', 'interaction_type', 'created_by']
+    ordering_fields = ['created_at']
+
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+
+
+class CustomerProfileViewSet(viewsets.ModelViewSet):
+    queryset = CustomerProfile.objects.annotate(
+        interactions_count=Count('interactions')
+    ).select_related('user').prefetch_related(
+        'tags', 'favorite_brands', 'favorite_families', 'interactions'
+    ).order_by('-created_at')
+    permission_classes = [permissions.IsAdminUser]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['segment', 'city', 'tags']
+    search_fields = ['name', 'phone', 'email']
+    ordering_fields = ['total_spent', 'total_orders', 'last_order_date', 'created_at']
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return CustomerProfileDetailSerializer
+        return CustomerProfileSerializer
+
+    @action(detail=True, methods=['post'])
+    def add_interaction(self, request, pk=None):
+        customer = self.get_object()
+        data = request.data.copy()
+        data.pop('customer', None)
+        serializer = CustomerInteractionSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(customer=customer, created_by=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'])
+    def segments_stats(self, request):
+        stats = CustomerProfile.objects.values('segment').annotate(count=Count('id'))
+        return Response(stats)
+
+    @action(detail=False, methods=['get'])
+    def export_csv(self, request):
+        import csv
+        from django.http import HttpResponse
+
+        queryset = self.filter_queryset(self.get_queryset())
+
+        response = HttpResponse(content_type='text/csv; charset=utf-8-sig')
+        response['Content-Disposition'] = 'attachment; filename="customers_export.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['ID', 'الاسم', 'رقم الهاتف', 'البريد الإلكتروني', 'المدينة', 'التصنيف', 'إجمالي الطلبات', 'إجمالي الإنفاق (د.ل)'])
+
+        segment_labels = {'new': 'جديد', 'regular': 'منتظم', 'vip': 'VIP', 'inactive': 'خامل'}
+
+        for profile in queryset:
+            writer.writerow([
+                profile.id,
+                profile.name,
+                profile.phone,
+                profile.email or '',
+                profile.city or '',
+                segment_labels.get(profile.segment, profile.segment),
+                profile.total_orders,
+                str(profile.total_spent),
+            ])
+
+        return response
