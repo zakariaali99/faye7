@@ -4,7 +4,7 @@ from django.utils.text import slugify
 class Category(models.Model):
     name_ar = models.CharField(max_length=100, verbose_name="الاسم بالعربية")
     slug = models.SlugField(unique=True, allow_unicode=True)
-    image = models.ImageField(upload_to='categories/', verbose_name="الصورة")
+    image = models.ImageField(upload_to='categories/', blank=True, verbose_name="الصورة")
     description = models.TextField(blank=True, verbose_name="الوصف")
     order = models.PositiveIntegerField(default=0, verbose_name="الترتيب")
     is_active = models.BooleanField(default=True, verbose_name="نشط")

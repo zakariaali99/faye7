@@ -112,6 +112,12 @@ class AdminCategoryViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ['name_ar', 'slug']
 
+    def perform_update(self, serializer):
+        # remove_image=true clears the photo (multipart forms cannot send an empty file).
+        instance = serializer.save()
+        if self.request.data.get('remove_image') == 'true' and 'image' not in self.request.FILES:
+            instance.image.delete(save=True)
+
 
 class AdminBrandViewSet(viewsets.ModelViewSet):
     queryset = Brand.objects.all()

@@ -21,6 +21,7 @@ const DashboardCategories = () => {
         is_active: true
     });
     const [imagePreview, setImagePreview] = useState(null);
+    const [removeImage, setRemoveImage] = useState(false);
 
     useEffect(() => {
         fetchCategories(1);
@@ -51,6 +52,7 @@ const DashboardCategories = () => {
                 is_active: category.is_active
             });
             setImagePreview(category.image);
+            setRemoveImage(false);
         } else {
             setCurrentCategory(null);
             setFormData({
@@ -62,6 +64,7 @@ const DashboardCategories = () => {
                 is_active: true
             });
             setImagePreview(null);
+            setRemoveImage(false);
         }
         setShowModal(true);
     };
@@ -70,6 +73,7 @@ const DashboardCategories = () => {
         setShowModal(false);
         setFormData({ name_ar: '', slug: '', image: null, description: '', order: 0, is_active: true });
         setImagePreview(null);
+        setRemoveImage(false);
     };
 
     const handleImageChange = (e) => {
@@ -77,6 +81,7 @@ const DashboardCategories = () => {
         if (file) {
             setFormData({ ...formData, image: file });
             setImagePreview(URL.createObjectURL(file));
+            setRemoveImage(false);
         }
     };
 
@@ -87,6 +92,8 @@ const DashboardCategories = () => {
             if (key === 'image' && typeof formData[key] === 'string') return; // Don't send URL string
             if (formData[key] !== null) data.append(key, formData[key]);
         });
+        // The trash button on an existing photo clears it (the store then shows the category name instead).
+        if (removeImage && !(formData.image instanceof File)) data.append('remove_image', 'true');
 
         try {
             if (currentCategory) {
@@ -151,8 +158,12 @@ const DashboardCategories = () => {
                             {categories.map((cat) => (
                                 <tr key={cat.id} className="hover:bg-gray-50/50 dark:hover:bg-dark-700/50 transition-colors">
                                     <td className="px-4 md:px-6 py-4">
-                                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg overflow-hidden border border-gray-100 dark:border-dark-600">
-                                            <img src={cat.image} alt={cat.name_ar} className="w-full h-full object-cover" />
+                                        <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg overflow-hidden border border-gray-100 dark:border-dark-600 bg-gray-50 dark:bg-dark-700 flex items-center justify-center">
+                                            {cat.image ? (
+                                                <img src={cat.image} alt={cat.name_ar} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <Upload size={16} className="text-gray-300" />
+                                            )}
                                         </div>
                                     </td>
                                     <td className="px-4 md:px-6 py-4 font-bold text-gray-900 dark:text-cream-50 text-sm md:text-base">{cat.name_ar}</td>
@@ -243,13 +254,14 @@ const DashboardCategories = () => {
 
                             <div>
                                 <label className="block text-[11px] font-black text-text-secondary dark:text-gold-400 uppercase mb-2 tracking-wider">صورة الفئة</label>
+                                <p className="text-[11px] text-text-muted mb-2">تظهر في قسم «تسوق حسب القسم» في الصفحة الرئيسية. لتغييرها: احذف الصورة الحالية ثم ارفع الجديدة. بدون صورة يظهر اسم الفئة مكانها.</p>
                                 <div className="group relative">
                                     {imagePreview ? (
                                         <div className="relative w-full h-32 rounded-2xl overflow-hidden border border-gold-300 dark:border-dark-600">
                                             <img src={imagePreview} alt="Preview" className="w-full h-full object-contain bg-cream-50 dark:bg-dark-700" />
                                             <button
                                                 type="button"
-                                                onClick={() => { setImagePreview(null); setFormData({ ...formData, image: null }) }}
+                                                onClick={() => { setImagePreview(null); setFormData({ ...formData, image: null }); setRemoveImage(!!currentCategory?.image); }}
                                                 className="absolute top-2 right-2 w-8 h-8 bg-white text-rose-600 rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-lg"
                                             >
                                                 <Trash2 size={16} />
@@ -259,7 +271,7 @@ const DashboardCategories = () => {
                                         <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gold-200 dark:border-dark-600 rounded-2xl hover:border-gold-300 transition-all cursor-pointer bg-cream-50/30">
                                             <Upload className="h-6 w-6 text-gold-500 mb-2" />
                                             <span className="text-xs font-bold text-text-primary dark:text-cream-50">رفع صورة الفئة</span>
-                                            <span className="text-[9px] text-text-muted mt-1">PNG, JPG, SVG</span>
+                                            <span className="text-[9px] text-text-muted mt-1">صورة مربعة، 800×800 بكسل أو أكبر · JPG أو PNG أو WEBP</span>
                                             <input type="file" className="sr-only" accept="image/*" onChange={handleImageChange} />
                                         </label>
                                     )}
