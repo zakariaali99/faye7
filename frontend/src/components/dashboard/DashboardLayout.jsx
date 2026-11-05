@@ -11,6 +11,7 @@ import {
     Settings,
     HardDrive,
     Palette,
+    UserCog,
     Menu,
     LogOut,
     Bell,
@@ -45,6 +46,7 @@ const DashboardLayout = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { isDark, toggleTheme } = useThemeStore();
+    const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
 
     const menuItems = [
         { to: '/dashboard', icon: LayoutDashboard, label: 'لوحة التحكم' },
@@ -59,11 +61,13 @@ const DashboardLayout = () => {
         { to: '/dashboard/appearance', icon: Palette, label: 'مظهر المتجر' },
         { to: '/dashboard/settings', icon: Settings, label: 'الإعدادات' },
         { to: '/dashboard/backup', icon: HardDrive, label: 'النسخ الاحتياطي' },
+        ...(currentUser?.is_superuser ? [{ to: '/dashboard/users', icon: UserCog, label: 'المستخدمون' }] : []),
     ];
 
     const handleLogout = () => {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
         navigate('/');
     };
 

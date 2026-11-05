@@ -15,7 +15,7 @@ class RecommendationViewSet(viewsets.ViewSet):
     """
     permission_classes = [permissions.AllowAny]
 
-    @action(detail=False, methods=['get'], url_path='similar/(?P<slug>[-\w]+)')
+    @action(detail=False, methods=['get'], url_path=r'similar/(?P<slug>[-\w]+)')
     def similar(self, request, slug=None):
         try:
             product = Product.objects.get(slug=slug)
@@ -25,7 +25,7 @@ class RecommendationViewSet(viewsets.ViewSet):
         except Product.DoesNotExist:
             return Response({'error': 'Product not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    @action(detail=False, methods=['get'], url_path='bought-together/(?P<slug>[-\w]+)')
+    @action(detail=False, methods=['get'], url_path=r'bought-together/(?P<slug>[-\w]+)')
     def bought_together(self, request, slug=None):
         try:
             product = Product.objects.get(slug=slug)

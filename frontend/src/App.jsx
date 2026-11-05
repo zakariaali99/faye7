@@ -35,6 +35,7 @@ import DashboardCoupons from './pages/dashboard/DashboardCoupons';
 import DashboardSettings from './pages/dashboard/DashboardSettings';
 import DashboardBackup from './pages/dashboard/DashboardBackup';
 import DashboardAppearance from './pages/dashboard/DashboardAppearance';
+import DashboardUsers from './pages/dashboard/DashboardUsers';
 
 // Protected Route for Admin
 const ProtectedRoute = ({ children }) => {
@@ -146,6 +147,7 @@ function App() {
             <Route path="settings" element={<DashboardSettings />} />
             <Route path="backup" element={<DashboardBackup />} />
             <Route path="appearance" element={<DashboardAppearance />} />
+            <Route path="users" element={<DashboardUsers />} />
           </Route>
 
           {/* 404 Route */}

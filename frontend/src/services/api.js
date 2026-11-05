@@ -93,6 +93,13 @@ export const accountsApi = {
     getMe: () => api.get('accounts/me/'),
 };
 
+export const staffUsersApi = {
+    list: () => api.get('accounts/users/'),
+    create: (data) => api.post('accounts/users/', data),
+    update: (id, data) => api.patch(`accounts/users/${id}/`, data),
+    delete: (id) => api.delete(`accounts/users/${id}/`),
+};
+
 export const productsApi = {
     getAll: (params) => api.get('products/products/', { params }),
     getDetail: (id) => api.get(`products/products/${id}/`),
