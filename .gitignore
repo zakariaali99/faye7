@@ -45,3 +45,7 @@ backend/.local-admin.txt
 # Runtime data: uploaded photos and the database travel in the data package, not git
 backend/media/
 deploy-data/
+
+# Generated on the server by collectstatic / Passenger
+backend/staticfiles/
+backend/tmp/
