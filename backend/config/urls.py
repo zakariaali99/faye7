@@ -4,6 +4,17 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from django.views.static import serve
+from django.http import FileResponse, Http404
+import os
+
+
+def site_icon(request):
+    # Browsers ask for /favicon.ico on their own; answer with the bottle icon.
+    icon = os.path.join(settings.BASE_DIR, 'static', 'frontend', 'logo.png')
+    if not os.path.exists(icon):
+        raise Http404
+    return FileResponse(open(icon, 'rb'), content_type='image/png')
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -17,6 +28,7 @@ urlpatterns = [
     path("api/marketing/", include("marketing.urls")),
     path("api/recommendations/", include("recommendations.urls")),
     path("api/backups/", include("backups.urls")),
+    re_path(r'^(?:favicon\.ico|logo\.png)$', site_icon),
 ]
 
 # Explicit media serving route (works in all environments regardless of DEBUG setting)

@@ -118,6 +118,12 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+STORAGES = {
+    # Uploads are saved under ASCII names: the host returns 404 for non-ASCII media paths.
+    "default": {"BACKEND": "config.storage.AsciiFileSystemStorage"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
+
 # Database backups: private, outside MEDIA_ROOT
 BACKUP_ROOT = env('BACKUP_ROOT', default=os.path.join(BASE_DIR, 'private_backups'))
 

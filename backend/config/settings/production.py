@@ -83,7 +83,7 @@ DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default='Faye7 Perfume <noreply@f
 # Static/Media
 STORAGES = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": "config.storage.AsciiFileSystemStorage",
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
