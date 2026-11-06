@@ -9,11 +9,13 @@ import os
 
 
 def site_icon(request):
-    # Browsers ask for /favicon.ico on their own; answer with the bottle icon.
-    icon = os.path.join(settings.BASE_DIR, 'static', 'frontend', 'logo.png')
+    # Browsers ask for /favicon.ico (and iOS for /apple-touch-icon.png) on their own.
+    name = request.path.lstrip('/')
+    icon = os.path.join(settings.BASE_DIR, 'static', 'frontend', name)
     if not os.path.exists(icon):
         raise Http404
-    return FileResponse(open(icon, 'rb'), content_type='image/png')
+    content_type = 'image/x-icon' if name.endswith('.ico') else 'image/png'
+    return FileResponse(open(icon, 'rb'), content_type=content_type)
 
 
 urlpatterns = [
@@ -28,7 +30,7 @@ urlpatterns = [
     path("api/marketing/", include("marketing.urls")),
     path("api/recommendations/", include("recommendations.urls")),
     path("api/backups/", include("backups.urls")),
-    re_path(r'^(?:favicon\.ico|logo\.png)$', site_icon),
+    re_path(r'^(?:favicon\.ico|logo\.png|apple-touch-icon\.png)$', site_icon),
 ]
 
 # Explicit media serving route (works in all environments regardless of DEBUG setting)
@@ -38,7 +40,7 @@ urlpatterns += [
 
 # SPA catch-all — serve index.html for all non-API, non-admin, non-static, non-media routes
 urlpatterns += [
-    re_path(r'^(?!api/|admin/|static/|media/|logo\.png|favicon\.ico).*$',
+    re_path(r'^(?!api/|admin/|static/|media/|logo\.png|favicon\.ico|apple-touch-icon\.png).*$',
             TemplateView.as_view(template_name='index.html'))
 ]
 

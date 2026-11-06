@@ -16,12 +16,12 @@ mkdir -p "$BACKEND_STATIC/themes"
 cp -R dist/themes/* "$BACKEND_STATIC/themes/"
 
 echo "=== Copying favicon to backend/static/frontend/ ==="
-cp dist/logo.png "$BACKEND_STATIC/logo.png"
+cp dist/logo.png dist/favicon.ico dist/apple-touch-icon.png "$BACKEND_STATIC/"
 
 echo "=== Fixing favicon path in built index.html ==="
 # Vite copies public/logo.png to dist/ with href="/logo.png"
 # In production, it's served at /static/frontend/logo.png
-sed -i '' 's|href="/logo.png"|href="/static/frontend/logo.png"|g' dist/index.html
+sed -i '' -E 's#href="/(logo\.png|favicon\.ico|apple-touch-icon\.png)"#href="/static/frontend/\1"#g' dist/index.html
 
 echo "=== Copying index.html to templates/ ==="
 cp dist/index.html "$TEMPLATES/index.html"
