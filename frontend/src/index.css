@@ -208,7 +208,76 @@ body {
   --t-head-weight: 600;
 }
 
+/* Dark mode: each theme has its own night palette. The visitor picks it from the
+   header (or it follows the device setting); data-mode sits next to data-theme. */
+[data-theme="dawn"][data-mode="dark"] {
+  --t-bg: #121212;
+  --t-surface: #1c1c1c;
+  --t-ink: #f2f2f2;
+  --t-muted: #a3a3a3;
+  --t-line: #2c2c2c;
+  --t-accent: #f2f2f2;
+  --t-sale: #ff7a6b;
+  --t-btn: #f2f2f2;
+  --t-btn-ink: #121212;
+  --t-dark: #000000;
+  --t-img: #e9e9e9;
+}
+
+[data-theme="prestige"][data-mode="dark"] {
+  --t-bg: #151413;
+  --t-surface: #1f1d1b;
+  --t-ink: #ede6da;
+  --t-muted: #a69d91;
+  --t-line: #302c28;
+  --t-accent: #c9a875;
+  --t-sale: #e0897a;
+  --t-btn: #ede6da;
+  --t-btn-ink: #151413;
+  --t-dark: #0c0b0a;
+  --t-img: #e8e1d6;
+}
+
+[data-theme="sense"][data-mode="dark"] {
+  --t-bg: #1d1613;
+  --t-surface: #2a201c;
+  --t-ink: #f4e8dd;
+  --t-muted: #b8a597;
+  --t-line: #3b2e28;
+  --t-accent: #e08a68;
+  --t-sale: #e08a68;
+  --t-btn: #e08a68;
+  --t-btn-ink: #1d1613;
+  --t-dark: #120d0b;
+  --t-img: #efe3d7;
+}
+
+[data-mode="dark"] {
+  color-scheme: dark;
+  --shadow-lg: 0 4px 14px rgb(0 0 0 / 0.3);
+  --shadow-xl: 0 6px 20px rgb(0 0 0 / 0.35);
+  --shadow-2xl: 0 10px 30px rgb(0 0 0 / 0.4);
+}
+
+/* Older store pages hard-code light greys and white cards; map them onto the night palette. */
+[data-mode="dark"] :is(.bg-white, .bg-gray-50) { background-color: var(--t-surface); }
+[data-mode="dark"] :is(.bg-white\/80, .bg-white\/90, .bg-gray-50\/80) { background-color: color-mix(in srgb, var(--t-surface) 90%, transparent); }
+[data-mode="dark"] :is(.bg-gray-100, .bg-gray-200, .bg-gray-300) { background-color: var(--t-line); }
+[data-mode="dark"] :is(.hover\:bg-white, .hover\:bg-gray-50, .hover\:bg-gray-100):hover { background-color: var(--t-line); }
+[data-mode="dark"] :is(.text-gray-400, .text-gray-500) { color: var(--t-muted); }
+[data-mode="dark"] :is(.border-gray-100, .border-gray-200, .border-white) { border-color: var(--t-line); }
+[data-mode="dark"] :is(.disabled\:bg-gray-200, .disabled\:bg-gray-300):disabled { background-color: var(--t-line); color: var(--t-muted); }
+/* Product photos are shot on white and blended with multiply, which turns them black on a
+   dark tile. Give any such tile the light image colour instead. */
+[data-mode="dark"] :has(> img.mix-blend-multiply) { background-color: var(--t-img); }
+/* White text on an accent fill: in dark mode the accent is light, so use the button ink. */
+[data-mode="dark"] :is(.bg-gold-500, .bg-gold-600, .bg-gold-700).text-white { color: var(--t-btn-ink); }
+
+html[data-store-mode="dark"] body { background-color: #121212; }
+
 [data-theme] {
+  --t-img: var(--t-surface);
+  --t-dark-ink: #ffffff;
   --color-gold-50: color-mix(in srgb, var(--t-accent) 6%, var(--t-bg));
   --color-gold-100: color-mix(in srgb, var(--t-accent) 12%, var(--t-bg));
   --color-gold-200: color-mix(in srgb, var(--t-accent) 25%, var(--t-bg));

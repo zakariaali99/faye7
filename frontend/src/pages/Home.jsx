@@ -99,7 +99,7 @@ const Home = () => {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
                     {categories.map((cat) => (
                         <Link key={cat.id} to={`/products?category=${cat.id}`} className="group block">
-                            <div className="aspect-square overflow-hidden bg-[var(--t-surface)] rounded-[var(--t-radius)]">
+                            <div className="aspect-square overflow-hidden bg-[var(--t-img)] rounded-[var(--t-radius)]">
                                 {cat.image ? (
                                     <img src={cat.image} alt={cat.name_ar} loading="lazy" className="w-full h-full object-contain p-3 md:p-5 mix-blend-multiply transition-transform duration-500 group-hover:scale-[1.04]" />
                                 ) : (
@@ -139,7 +139,7 @@ const Home = () => {
             <section key="banner" className="pt-12 md:pt-20">
                 <div className="t-container">
                     <div className="grid md:grid-cols-2 items-center gap-6 md:gap-12 bg-[var(--t-surface)] rounded-[var(--t-radius)] overflow-hidden">
-                        <div className="aspect-[4/3] md:aspect-auto md:h-full md:min-h-[420px]">
+                        <div className="aspect-[4/3] md:aspect-auto md:h-full md:min-h-[420px] bg-[var(--t-img)]">
                             <img src={banners[0].image} className="w-full h-full object-contain p-6 mix-blend-multiply" alt={banners[0].title || ''} loading="lazy" />
                         </div>
                         <div className="p-6 pt-0 md:p-12">

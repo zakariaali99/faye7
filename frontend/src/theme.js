@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 // Storefront themes. The active one is chosen in the dashboard (Appearance page) and saved in
 // the store settings. Django writes it into index.html (<meta name="store-theme">), so the store
 // opens already themed. `?theme=<key>` previews another theme in this tab only.
@@ -55,3 +57,17 @@ export const initialTheme = preview || serverTheme || readCachedTheme() || DEFAU
 export const themeIsFinal = !!(preview || serverTheme);
 
 export const resolveTheme = (settingsTheme) => (isTheme(settingsTheme) ? settingsTheme : DEFAULT_THEME);
+
+// Storefront dark mode: the visitor's choice, else the device setting.
+const darkQuery = typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+export const useStoreDark = (storeDark) => {
+    const [deviceDark, setDeviceDark] = useState(() => !!darkQuery?.matches);
+    useEffect(() => {
+        if (!darkQuery) return undefined;
+        const onChange = (e) => setDeviceDark(e.matches);
+        darkQuery.addEventListener('change', onChange);
+        return () => darkQuery.removeEventListener('change', onChange);
+    }, []);
+    return storeDark ?? deviceDark;
+};

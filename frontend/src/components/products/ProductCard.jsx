@@ -12,7 +12,7 @@ const ProductCard = ({ product }) => {
 
     return (
         <Link to={`/product/${product.id}`} className="group block text-[var(--t-ink)]">
-            <div className="relative aspect-[4/5] overflow-hidden bg-[var(--t-surface)] rounded-[var(--t-radius)]">
+            <div className="relative aspect-[4/5] overflow-hidden bg-[var(--t-img)] rounded-[var(--t-radius)]">
                 {hasImage ? (
                     <img
                         src={product.main_image}

@@ -118,7 +118,7 @@ const ProductDetail = () => {
 
                     {/* Left: Images */}
                     <div className="space-y-6">
-                        <div className="aspect-square bg-[var(--t-surface)] rounded-[var(--t-radius)] overflow-hidden relative group flex items-center justify-center p-6 md:p-10">
+                        <div className="aspect-square bg-[var(--t-img)] rounded-[var(--t-radius)] overflow-hidden relative group flex items-center justify-center p-6 md:p-10">
                             {selectedImage && failedImage !== selectedImage ? (
                                 <motion.img
                                     key={selectedImage}
@@ -167,7 +167,7 @@ const ProductDetail = () => {
                             <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
                                 <button
                                     onClick={() => setSelectedImage(product.main_image)}
-                                    className={`w-24 h-24 rounded-2xl overflow-hidden bg-[var(--t-surface)] border-2 flex-shrink-0 transition-all ${selectedImage === product.main_image ? 'border-gold-500 shadow-md scale-105' : 'border-transparent hover:border-gold-300'}`}
+                                    className={`w-24 h-24 rounded-2xl overflow-hidden bg-[var(--t-img)] border-2 flex-shrink-0 transition-all ${selectedImage === product.main_image ? 'border-gold-500 shadow-md scale-105' : 'border-transparent hover:border-gold-300'}`}
                                 >
                                     <img src={product.main_image} alt="" className="w-full h-full object-contain p-1.5 mix-blend-multiply" />
                                 </button>
@@ -175,7 +175,7 @@ const ProductDetail = () => {
                                     <button
                                         key={idx}
                                         onClick={() => setSelectedImage(img.image)}
-                                        className={`w-24 h-24 rounded-2xl overflow-hidden bg-[var(--t-surface)] border-2 flex-shrink-0 transition-all ${selectedImage === img.image ? 'border-gold-500 shadow-md scale-105' : 'border-transparent hover:border-gold-300'}`}
+                                        className={`w-24 h-24 rounded-2xl overflow-hidden bg-[var(--t-img)] border-2 flex-shrink-0 transition-all ${selectedImage === img.image ? 'border-gold-500 shadow-md scale-105' : 'border-transparent hover:border-gold-300'}`}
                                     >
                                         <img src={img.image} alt="" className="w-full h-full object-contain p-1.5 mix-blend-multiply" />
                                     </button>

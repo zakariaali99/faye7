@@ -5,7 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import useThemeStore from './store/themeStore';
 import useCartStore from './store/cartStore';
 import useSettingsStore from './store/settingsStore';
-import { initialTheme, themeIsFinal, resolveTheme, cacheTheme } from './theme';
+import { initialTheme, themeIsFinal, resolveTheme, cacheTheme, useStoreDark } from './theme';
 
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
@@ -61,13 +61,19 @@ const StoreLayout = () => {
   }, [fetchCart, fetchSettings]);
 
   const theme = themeIsFinal || !settings ? initialTheme : resolveTheme(settings.store_theme);
+  const storeDark = useStoreDark(useThemeStore(state => state.storeDark));
+
+  useEffect(() => {
+    document.documentElement.dataset.storeMode = storeDark ? 'dark' : 'light';
+    return () => { delete document.documentElement.dataset.storeMode; };
+  }, [storeDark]);
 
   useEffect(() => {
     if (settings) cacheTheme(resolveTheme(settings.store_theme));
   }, [settings]);
 
   return (
-    <div data-theme={theme} className="min-h-screen flex flex-col">
+    <div data-theme={theme} data-mode={storeDark ? 'dark' : 'light'} className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
         <Outlet />
@@ -77,7 +83,7 @@ const StoreLayout = () => {
   );
 };
 
-// Dark mode applies to the dashboard only; the store always uses its light theme.
+// The dashboard's dark mode (.dark class). The store has its own, set on its theme wrapper.
 const DarkModeClass = ({ isDark }) => {
   const { pathname } = useLocation();
 

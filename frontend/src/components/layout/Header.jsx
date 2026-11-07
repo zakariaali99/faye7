@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShoppingBag, Search, Menu, User, X, Phone, ChevronDown, ChevronLeft } from 'lucide-react';
+import { ShoppingBag, Search, Menu, User, X, Phone, ChevronDown, ChevronLeft, Moon, Sun } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useCartStore from '../../store/cartStore';
 import useSettingsStore from '../../store/settingsStore';
+import useThemeStore from '../../store/themeStore';
+import { useStoreDark } from '../../theme';
 import CartDrawer from '../cart/CartDrawer';
 import { productsApi } from '../../services/api';
 import { PHONE, SocialIcons } from './social';
@@ -21,6 +23,8 @@ const Header = () => {
     const settings = useSettingsStore(state => state.settings);
     const bannerText = settings ? (settings.top_banner_is_active ? (settings.top_banner_text || DEFAULT_BANNER) : '') : DEFAULT_BANNER;
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const setStoreDark = useThemeStore(state => state.setStoreDark);
+    const storeDark = useStoreDark(useThemeStore(state => state.storeDark));
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [categories, setCategories] = useState([]);
@@ -100,7 +104,7 @@ const Header = () => {
         <>
             {/* Announcement bar */}
             {bannerText && (
-                <div className="bg-[var(--t-dark)] text-[var(--t-bg)] text-xs md:text-sm text-center py-2.5 px-4">
+                <div className="bg-[var(--t-dark)] text-[var(--t-dark-ink)] text-xs md:text-sm text-center py-2.5 px-4">
                     {bannerText}
                 </div>
             )}
@@ -151,6 +155,14 @@ const Header = () => {
                     <div className="flex items-center justify-end gap-1 md:gap-2 text-[var(--t-ink)]">
                         <button onClick={() => setIsSearchOpen(true)} aria-label="بحث" className="p-2 hover:opacity-70">
                             <Search size={21} strokeWidth={1.5} />
+                        </button>
+                        <button
+                            onClick={() => setStoreDark(!storeDark)}
+                            aria-label={storeDark ? 'الوضع الفاتح' : 'الوضع الداكن'}
+                            title={storeDark ? 'الوضع الفاتح' : 'الوضع الداكن'}
+                            className="p-2 hover:opacity-70"
+                        >
+                            {storeDark ? <Sun size={21} strokeWidth={1.5} /> : <Moon size={21} strokeWidth={1.5} />}
                         </button>
                         {isAdmin && (
                             <Link to="/dashboard" aria-label="لوحة التحكم" className="hidden md:block p-2 hover:opacity-70">
