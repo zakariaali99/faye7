@@ -55,11 +55,12 @@ class ProductVariantSerializer(serializers.ModelSerializer):
         return value
 
     def get_product_main_image(self, obj):
-        if obj.image:
-            return obj.image.url
-        if obj.product.main_image:
-            return obj.product.main_image.url
-        return None
+        image = obj.image or obj.product.main_image
+        if not image:
+            return None
+        # Absolute like the product list, so the URL works wherever the cart is shown.
+        request = self.context.get('request')
+        return request.build_absolute_uri(image.url) if request else image.url
 
 
 class ProductListSerializer(serializers.ModelSerializer):

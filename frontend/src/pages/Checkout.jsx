@@ -20,6 +20,7 @@ import {
     X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ProductThumb from '../components/products/ProductThumb';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
@@ -425,11 +426,7 @@ const Checkout = () => {
                                 {cart.items && cart.items.map((item) => (
                                     <div key={item.id} className="flex gap-4">
                                         <div className="w-16 h-16 bg-cream-50 dark:bg-dark-600 rounded-xl overflow-hidden border border-gold-50 dark:border-dark-500 flex-shrink-0">
-                                            <img
-                                                src={item.variant.product_main_image || 'https://placehold.co/100x100'}
-                                                className="w-full h-full object-contain p-1 mix-blend-multiply"
-                                                alt={item.variant.product_name_ar}
-                                            />
+                                            <ProductThumb src={item.variant.product_main_image} alt={item.variant.product_name_ar} />
                                         </div>
                                         <div className="flex-1">
                                             <h4 className="font-bold text-sm text-text-primary dark:text-cream-50 line-clamp-1">{item.variant.product_name_ar}</h4>

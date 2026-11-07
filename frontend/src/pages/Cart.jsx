@@ -11,6 +11,7 @@ import {
     ChevronLeft
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ProductThumb from '../components/products/ProductThumb';
 import { marketingApi } from '../services/api';
 import { toast } from 'react-hot-toast';
 
@@ -102,7 +103,7 @@ const Cart = () => {
                                     className="bg-white dark:bg-dark-700 p-4 md:p-6 rounded-3xl border border-gold-200 dark:border-dark-600 flex gap-4 md:gap-6 items-center"
                                 >
                                     <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden bg-cream-50 dark:bg-dark-600 flex-shrink-0">
-                                        <img src={item.variant.product_main_image} alt="" className="w-full h-full object-contain p-1 mix-blend-multiply" />
+                                        <ProductThumb src={item.variant.product_main_image} />
                                     </div>
 
                                     <div className="flex-1 min-w-0">

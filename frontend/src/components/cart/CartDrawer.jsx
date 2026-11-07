@@ -2,6 +2,7 @@ import { X, ShoppingBag, Trash2, Plus, Minus } from 'lucide-react';
 import useCartStore from '../../store/cartStore';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import ProductThumb from '../products/ProductThumb';
 import { toast } from 'react-hot-toast';
 
 const CartDrawer = ({ isOpen, onClose }) => {
@@ -66,15 +67,7 @@ const CartDrawer = ({ isOpen, onClose }) => {
                                 cart.items.map((item) => (
                                     <div key={item.id} className="flex gap-4 group">
                                         <div className="w-24 h-24 bg-cream-50 dark:bg-dark-700 rounded-2xl overflow-hidden border border-gold-50 dark:border-dark-500 flex-shrink-0">
-                                            {item.variant.product_main_image ? (
-                                                <img
-                                                    src={item.variant.product_main_image}
-                                                    alt={item.variant.product_name_ar}
-                                                    className="w-full h-full object-contain p-1 mix-blend-multiply"
-                                                />
-                                            ) : (
-                                                <div className="w-full h-full flex items-center justify-center text-gold-400 text-2xl">🌸</div>
-                                            )}
+                                            <ProductThumb src={item.variant.product_main_image} alt={item.variant.product_name_ar} />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex justify-between items-start mb-1">
