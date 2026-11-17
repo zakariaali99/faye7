@@ -12,7 +12,7 @@ import {
     Star,
     Truck,
     ShieldCheck,
-    RotateCcw,
+    CreditCard,
     Minus,
     Plus,
     Sparkles,
@@ -322,7 +322,7 @@ const ProductDetail = () => {
                             {[
                                 { icon: Truck, title: 'شحن لكافة أنحاء ليبيا', desc: 'توصيل لباب المنزل' },
                                 { icon: ShieldCheck, title: 'ضمان الجودة', desc: 'عطور أصلية ومضمونة' },
-                                { icon: RotateCcw, title: 'سياسة الاستبدال', desc: 'مرونة في التعامل' },
+                                { icon: CreditCard, title: 'الدفع بالتحويل', desc: 'عند تأكيد الطلب' },
                             ].map((f, i) => (
                                 <div key={i} className="flex flex-col items-center text-center p-8 bg-white dark:bg-dark-700 rounded-[32px] border border-gold-100 dark:border-dark-500 shadow-sm">
                                     <div className="p-4 bg-gold-50 dark:bg-dark-600 rounded-2xl mb-4">
