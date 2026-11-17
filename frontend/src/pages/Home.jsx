@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Hero from '../components/home/Hero';
+import { BannerStrip, BannerFeature } from '../components/home/PromoBanner';
 import ProductCard from '../components/products/ProductCard';
 import { productsApi, cmsApi } from '../services/api';
-import { Sparkles, ShieldCheck, Truck, Gift } from 'lucide-react';
+import { Sparkles, ShieldCheck, Truck, Gift, CreditCard } from 'lucide-react';
 
 // Used when the dashboard has no home sections configured yet.
 const DEFAULT_SECTIONS = [
@@ -35,6 +36,7 @@ const ProductGrid = ({ items }) => (
 
 const Home = () => {
     const [products, setProducts] = useState([]);
+    const [bestsellers, setBestsellers] = useState([]);
     const [banners, setBanners] = useState([]);
     const [categories, setCategories] = useState([]);
     const [hpcSections, setHpcSections] = useState([]);
@@ -43,14 +45,16 @@ const Home = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const [prodRes, bannerRes, catRes, hpcRes] = await Promise.all([
+                const [prodRes, bestRes, bannerRes, catRes, hpcRes] = await Promise.all([
                     productsApi.getAll({ is_featured: true }),
+                    productsApi.getAll({ is_bestseller: true }),
                     cmsApi.getBanners(),
                     productsApi.getCategories(),
                     cmsApi.getHPC()
                 ]);
                 setProducts(prodRes.data.results || prodRes.data || []);
-                setBanners(bannerRes.data.results || bannerRes.data || []);
+                setBestsellers(bestRes.data.results || bestRes.data || []);
+                setBanners((bannerRes.data.results || bannerRes.data || []).filter(b => b.is_active));
                 setCategories(catRes.data.results || catRes.data || []);
 
                 const sortedHpc = (hpcRes.data.results || hpcRes.data || []).sort((a, b) => a.order - b.order);
@@ -64,12 +68,15 @@ const Home = () => {
         fetchData();
     }, []);
 
+    const topBanners = banners.filter(b => b.position === 'home_top');
+    const middleBanners = banners.filter(b => b.position === 'home_middle');
+
     const sectionRenderers = {
         features: (section) => {
             const features = section.content || [
                 { title: 'عطور أصلية 100%', desc: 'من مصادرها الرسمية' },
                 { title: 'تقسيمات تناسبك', desc: 'جرّب قبل الزجاجة الكاملة' },
-                { title: 'توصيل لكل ليبيا', desc: 'الدفع عند الاستلام' },
+                { title: 'توصيل لكل ليبيا', desc: 'الدفع بالتحويل عند الطلب' },
                 { title: 'تغليف أنيق', desc: 'مثالي كهدية' }
             ];
             const icons = [ShieldCheck, Sparkles, Truck, Gift];
@@ -115,17 +122,17 @@ const Home = () => {
             </section>
         ),
         best_sellers: (section) => {
-            const items = products.filter(p => p.is_bestseller);
+            const items = bestsellers;
             return items.length > 0 && (
                 <section key="best_sellers" className="t-container pt-12 md:pt-20">
-                    <SectionHeading title={section.content?.heading || 'الأكثر مبيعاً'} linkText={section.content?.button_text || 'عرض الكل'} linkTo="/products" />
+                    <SectionHeading title={section.content?.heading || 'الأكثر مبيعاً'} linkText={section.content?.button_text || 'عرض الكل'} linkTo={section.content?.button_link || '/products'} />
                     <ProductGrid items={items.slice(0, 4)} />
                 </section>
             );
         },
         featured_products: (section) => (
             <section key="featured_products" className="t-container pt-12 md:pt-20">
-                <SectionHeading title={section.content?.heading || 'عطور مختارة لك'} linkText="عرض الكل" linkTo="/products" />
+                <SectionHeading title={section.content?.heading || 'عطور مختارة لك'} linkText={section.content?.button_text || 'عرض الكل'} linkTo={section.content?.button_link || '/products'} />
                 {loading ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 md:gap-x-6">
                         {[1, 2, 3, 4].map(i => <div key={i} className="aspect-[4/5] bg-[var(--t-surface)] animate-pulse rounded-[var(--t-radius)]" />)}
@@ -135,18 +142,32 @@ const Home = () => {
                 )}
             </section>
         ),
-        banner: () => banners.length > 0 && (
+        banner: () => middleBanners.length > 0 && (
             <section key="banner" className="pt-12 md:pt-20">
-                <div className="t-container">
-                    <div className="grid md:grid-cols-2 items-center gap-6 md:gap-12 bg-[var(--t-surface)] rounded-[var(--t-radius)] overflow-hidden">
-                        <div className="aspect-[4/3] md:aspect-auto md:h-full md:min-h-[420px] bg-[var(--t-img)]">
-                            <img src={banners[0].image} className="w-full h-full object-contain p-6 mix-blend-multiply" alt={banners[0].title || ''} loading="lazy" />
-                        </div>
-                        <div className="p-6 pt-0 md:p-12">
-                            <h2 className="t-head text-3xl md:text-5xl text-[var(--t-ink)] leading-tight mb-5">{banners[0].title}</h2>
-                            <Link to={banners[0].button_link || '/products'} className="t-btn">اكتشف الآن</Link>
-                        </div>
+                <div className="t-container space-y-6">
+                    {middleBanners.map(banner => <BannerFeature key={banner.id} banner={banner} />)}
+                </div>
+            </section>
+        ),
+        payment_notice: (section) => section.content?.heading && (
+            <section key="payment_notice" className="border-b border-[var(--t-line)] bg-[var(--t-surface)]">
+                <div className="t-container py-4 md:py-5 flex items-center justify-center gap-3 text-center">
+                    <CreditCard size={22} strokeWidth={1.5} className="text-[var(--t-accent)] shrink-0" />
+                    <div>
+                        <p className="text-[15px] md:text-base font-medium text-[var(--t-ink)]">{section.content.heading}</p>
+                        {section.content.description && <p className="text-xs md:text-sm text-[var(--t-muted)] mt-0.5">{section.content.description}</p>}
                     </div>
+                </div>
+            </section>
+        ),
+        ramadan: (section) => section.content?.heading && (
+            <section key="ramadan" className="t-container pt-12 md:pt-20">
+                <div className="bg-[var(--t-surface)] rounded-[var(--t-radius)] px-6 py-12 md:py-16 text-center">
+                    <h2 className="t-head text-3xl md:text-5xl text-[var(--t-ink)] mb-4">{section.content.heading}</h2>
+                    {section.content.subtitle && <p className="text-[var(--t-muted)] md:text-lg max-w-2xl mx-auto">{section.content.subtitle}</p>}
+                    {section.content.button_text && (
+                        <Link to={section.content.button_link || '/products'} className="t-btn mt-8">{section.content.button_text}</Link>
+                    )}
                 </div>
             </section>
         ),
@@ -179,7 +200,7 @@ const Home = () => {
                     <p className="text-[var(--t-muted)] leading-loose md:text-lg">
                         {section.content?.description || 'في بوتيك فايح، نؤمن أن العطر ليس مجرد منتج، بل هو رحلة عبر الزمن والمكان، تجسد أرقى معاني الفخامة والجمال العربي الأصيل.'}
                     </p>
-                    <Link to="/about" className="t-btn-outline mt-8">قصتنا</Link>
+                    <Link to={section.content?.button_link || '/about'} className="t-btn-outline mt-8">{section.content?.button_text || 'قصتنا'}</Link>
                 </div>
             </section>
         )
@@ -190,6 +211,7 @@ const Home = () => {
     return (
         <div className="overflow-x-hidden">
             <Hero />
+            <BannerStrip banners={topBanners} className="t-container pt-6 md:pt-10" />
 
             {sections.map(section => {
                 if (!section.is_active) return null;

@@ -1,4 +1,4 @@
-from django.db.models import Min, Case, When, F, DecimalField
+from django.db.models import Min, Case, When, F, DecimalField, Exists, OuterRef
 from rest_framework import viewsets, filters, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -45,6 +45,7 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
         'gender': ['exact'],
         'is_featured': ['exact'],
         'is_new': ['exact'],
+        'is_bestseller': ['exact'],
     }
     search_fields = ['name_ar', 'description']
     ordering_fields = ['created_at', 'sales_count', 'view_count', 'min_price']
@@ -58,7 +59,17 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
                     output_field=DecimalField()
                 )
             )
-        ).select_related('brand').prefetch_related('categories', 'variants').distinct().order_by('-created_at')
+        ).annotate(
+            first=Exists(Category.objects.filter(product=OuterRef('pk'), show_first=True))
+        ).select_related('brand').prefetch_related('categories', 'variants').distinct().order_by('-first', '-created_at')
+
+    def filter_queryset(self, queryset):
+        # The default order puts products from "show first" categories (niche) at the top.
+        # Any other order the customer picks replaces it.
+        queryset = super().filter_queryset(queryset)
+        if self.request.query_params.get('ordering', '-created_at') == '-created_at':
+            queryset = queryset.order_by('-first', '-created_at')
+        return queryset
 
     @action(detail=True, methods=['get'])
     def related(self, request, pk=None):

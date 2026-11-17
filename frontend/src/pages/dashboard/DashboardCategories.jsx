@@ -18,7 +18,8 @@ const DashboardCategories = () => {
         image: null,
         description: '',
         order: 0,
-        is_active: true
+        is_active: true,
+        show_first: false
     });
     const [imagePreview, setImagePreview] = useState(null);
     const [removeImage, setRemoveImage] = useState(false);
@@ -49,7 +50,8 @@ const DashboardCategories = () => {
                 slug: category.slug,
                 description: category.description || '',
                 order: category.order || 0,
-                is_active: category.is_active
+                is_active: category.is_active,
+                show_first: !!category.show_first
             });
             setImagePreview(category.image);
             setRemoveImage(false);
@@ -61,7 +63,8 @@ const DashboardCategories = () => {
                 image: null,
                 description: '',
                 order: 0,
-                is_active: true
+                is_active: true,
+                show_first: false
             });
             setImagePreview(null);
             setRemoveImage(false);
@@ -71,7 +74,7 @@ const DashboardCategories = () => {
 
     const handleCloseModal = () => {
         setShowModal(false);
-        setFormData({ name_ar: '', slug: '', image: null, description: '', order: 0, is_active: true });
+        setFormData({ name_ar: '', slug: '', image: null, description: '', order: 0, is_active: true, show_first: false });
         setImagePreview(null);
         setRemoveImage(false);
     };
@@ -251,6 +254,16 @@ const DashboardCategories = () => {
                                     </label>
                                 </div>
                             </div>
+
+                            <label className="flex items-center justify-between gap-3 cursor-pointer p-3 bg-cream-50 dark:bg-dark-700 rounded-2xl border border-gold-200 dark:border-dark-600">
+                                <span className="text-sm font-bold text-text-primary dark:text-cream-50">منتجات هذه الفئة تظهر أولاً في صفحة المنتجات</span>
+                                <input
+                                    type="checkbox"
+                                    checked={!!formData.show_first}
+                                    onChange={(e) => setFormData({ ...formData, show_first: e.target.checked })}
+                                    className="w-5 h-5 shrink-0 accent-gold-500"
+                                />
+                            </label>
 
                             <div>
                                 <label className="block text-[11px] font-black text-text-secondary dark:text-gold-400 uppercase mb-2 tracking-wider">صورة الفئة</label>

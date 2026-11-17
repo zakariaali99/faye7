@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import useCartStore from '../store/cartStore';
-import { ordersApi, marketingApi } from '../services/api';
+import { ordersApi, marketingApi, cmsApi } from '../services/api';
 import Modal from '../components/common/Modal';
 import {
     ChevronRight,
@@ -23,6 +23,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ProductThumb from '../components/products/ProductThumb';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
+
+const DEFAULT_PAYMENT_NOTE = 'الدفع بالتحويل عند تأكيد الطلب. بعد التأكيد نرسل لك بيانات التحويل على الواتساب.';
 
 const Checkout = () => {
     const { cart, clearCart, coupon, applyCoupon, removeCoupon } = useCartStore();
@@ -50,6 +52,18 @@ const Checkout = () => {
 
     const discountAmount = coupon ? coupon.calculated_discount : 0;
     const finalTotal = Math.max(0, cart.total_amount - discountAmount);
+
+    // Same payment message as the home page section, editable from the dashboard.
+    const [paymentNote, setPaymentNote] = useState(DEFAULT_PAYMENT_NOTE);
+    useEffect(() => {
+        cmsApi.getHPC()
+            .then(res => {
+                const section = (res.data.results || res.data || []).find(s => s.key === 'payment_notice');
+                const text = [section?.content?.heading, section?.content?.description].filter(Boolean).join('. ');
+                if (text) setPaymentNote(text);
+            })
+            .catch(() => {});
+    }, []);
 
     useEffect(() => {
         if (!cart.items || cart.items.length === 0) {
@@ -391,7 +405,7 @@ const Checkout = () => {
                                         <div className="bg-gold-50 dark:bg-dark-600/50 p-4 rounded-2xl border border-gold-200 dark:border-gold-500/30 flex gap-3">
                                             <AlertCircle className="text-gold-600 flex-shrink-0" />
                                             <p className="text-xs text-gold-800 dark:text-gold-300 leading-relaxed font-bold">
-                                                الدفع سيكون عند الاستلام او يمكنكم التحويل مباشرة لحساب المتجر عبر التواصل عن طريق الواتساب. سيقوم مندوب التوصيل بالتواصل معك قبل الوصول.
+                                                {paymentNote}
                                             </p>
                                         </div>
 

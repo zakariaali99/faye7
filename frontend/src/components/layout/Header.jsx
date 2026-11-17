@@ -11,7 +11,7 @@ import { productsApi } from '../../services/api';
 import { PHONE, SocialIcons } from './social';
 import Logo from '../common/Logo';
 
-const DEFAULT_BANNER = 'توصيل لكل مدن ليبيا · الدفع عند الاستلام';
+const DEFAULT_BANNER = 'توصيل لكل مدن ليبيا · الدفع بالتحويل عند تأكيد الطلب';
 
 const fallbackCategories = [
     { id: 1, slug: 'oriental', name_ar: 'عطور شرقية' },

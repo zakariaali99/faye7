@@ -19,6 +19,16 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
+
+// The store's display checkboxes. Only "active" is on for a new product; the admin turns on the rest.
+const DISPLAY_OPTIONS = [
+    { key: 'is_active', label: 'تفعيل المنتج في المتجر' },
+    { key: 'show_price_in_list', label: 'إظهار السعر في صفحة المنتجات', hint: 'السعر يظهر دائماً داخل صفحة المنتج نفسه' },
+    { key: 'show_stock', label: 'إظهار الكمية المتوفرة في صفحة المنتج' },
+    { key: 'is_featured', label: 'منتج مميز (Featured)' },
+    { key: 'is_new', label: 'وصول جديد (New)' },
+    { key: 'is_bestseller', label: 'الأكثر مبيعاً (Bestseller)' },
+];
 const ProductEdit = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -49,8 +59,10 @@ const ProductEdit = () => {
         vibe: '',
         is_active: true,
         is_featured: false,
-        is_new: true,
+        is_new: false,
         is_bestseller: false,
+        show_price_in_list: false,
+        show_stock: false,
     });
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
@@ -120,8 +132,10 @@ const ProductEdit = () => {
                 vibe: data.vibe || '',
                 is_active: data.is_active ?? true,
                 is_featured: data.is_featured ?? false,
-                is_new: data.is_new ?? true,
+                is_new: data.is_new ?? false,
                 is_bestseller: data.is_bestseller ?? false,
+                show_price_in_list: data.show_price_in_list ?? false,
+                show_stock: data.show_stock ?? false,
             });
             if (data.main_image) {
                 setImagePreview(data.main_image);
@@ -205,7 +219,7 @@ const ProductEdit = () => {
                 data.append('brand', formData.brand);
             }
 
-            ['is_active', 'is_featured', 'is_new', 'is_bestseller'].forEach(key => {
+            DISPLAY_OPTIONS.forEach(({ key }) => {
                 data.append(key, formData[key] ? 'true' : 'false');
             });
 
@@ -889,46 +903,21 @@ const ProductEdit = () => {
                         </div>
 
                         <div className="space-y-4">
-                            <label className="flex items-center justify-between p-4 bg-cream-50 dark:bg-dark-600 border border-gold-100 dark:border-dark-600 rounded-2xl cursor-pointer text-text-primary dark:text-cream-50">
-                                <span className="text-sm font-bold">تفعيل المنتج</span>
-                                <input
-                                    type="checkbox"
-                                    name="is_active"
-                                    checked={formData.is_active}
-                                    onChange={handleChange}
-                                    className="w-5 h-5 accent-gold-500"
-                                />
-                            </label>
-                            <label className="flex items-center justify-between p-4 bg-cream-50 dark:bg-dark-600 border border-gold-100 dark:border-dark-600 rounded-2xl cursor-pointer text-text-primary dark:text-cream-50">
-                                <span className="text-sm font-bold">منتج مميز (Featured)</span>
-                                <input
-                                    type="checkbox"
-                                    name="is_featured"
-                                    checked={formData.is_featured}
-                                    onChange={handleChange}
-                                    className="w-5 h-5 accent-gold-500"
-                                />
-                            </label>
-                            <label className="flex items-center justify-between p-4 bg-cream-50 dark:bg-dark-600 border border-gold-100 dark:border-dark-600 rounded-2xl cursor-pointer text-text-primary dark:text-cream-50">
-                                <span className="text-sm font-bold">وصول جديد (New)</span>
-                                <input
-                                    type="checkbox"
-                                    name="is_new"
-                                    checked={formData.is_new}
-                                    onChange={handleChange}
-                                    className="w-5 h-5 accent-gold-500"
-                                />
-                            </label>
-                            <label className="flex items-center justify-between p-4 bg-cream-50 dark:bg-dark-600 border border-gold-100 dark:border-dark-600 rounded-2xl cursor-pointer text-text-primary dark:text-cream-50">
-                                <span className="text-sm font-bold">الأكثر مبيعاً (Bestseller)</span>
-                                <input
-                                    type="checkbox"
-                                    name="is_bestseller"
-                                    checked={formData.is_bestseller}
-                                    onChange={handleChange}
-                                    className="w-5 h-5 accent-gold-500"
-                                />
-                            </label>
+                            {DISPLAY_OPTIONS.map(({ key, label, hint }) => (
+                                <label key={key} className="flex items-center justify-between gap-4 p-4 bg-cream-50 dark:bg-dark-600 border border-gold-100 dark:border-dark-600 rounded-2xl cursor-pointer text-text-primary dark:text-cream-50">
+                                    <span>
+                                        <span className="block text-sm font-bold">{label}</span>
+                                        {hint && <span className="block text-xs text-text-muted dark:text-gold-400/60 mt-1">{hint}</span>}
+                                    </span>
+                                    <input
+                                        type="checkbox"
+                                        name={key}
+                                        checked={!!formData[key]}
+                                        onChange={handleChange}
+                                        className="w-5 h-5 shrink-0 accent-gold-500"
+                                    />
+                                </label>
+                            ))}
                         </div>
                     </div>
                 </div>

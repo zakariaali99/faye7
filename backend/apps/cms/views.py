@@ -1,3 +1,5 @@
+from django.db.models import Q
+from django.utils import timezone
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from .models import HeroSlide, Banner, StoreSettings, HomePageSection
@@ -19,7 +21,20 @@ class HeroSlideViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.request.user.is_staff:
             return HeroSlide.objects.all()
-        return HeroSlide.objects.filter(is_active=True)
+        # Slides with a start or end date only show inside that window.
+        now = timezone.now()
+        return HeroSlide.objects.filter(is_active=True).filter(
+            Q(start_date__isnull=True) | Q(start_date__lte=now),
+            Q(end_date__isnull=True) | Q(end_date__gte=now),
+        )
+
+    def perform_update(self, serializer):
+        slide = serializer.save()
+        # The dashboard sends this flag when the admin removes the portrait (mobile) image.
+        if self.request.data.get('remove_image_mobile') == 'true' and slide.image_mobile:
+            slide.image_mobile.delete(save=False)
+            slide.image_mobile = ''
+            slide.save(update_fields=['image_mobile'])
 
 
 class BannerViewSet(viewsets.ModelViewSet):

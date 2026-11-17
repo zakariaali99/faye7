@@ -73,7 +73,8 @@ class ProductListSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             'id', 'product_number', 'name_ar', 'categories', 'brand', 'gender', 'stock_type', 'bulk_ml_stock', 'main_image',
-            'min_price', 'is_featured', 'is_bestseller', 'is_new', 'is_active', 'occasion', 'vibe'
+            'min_price', 'is_featured', 'is_bestseller', 'is_new', 'is_active', 'show_price_in_list', 'show_stock',
+            'occasion', 'vibe'
         ]
 
     def get_min_price(self, obj):
@@ -113,6 +114,6 @@ class AdminProductCreateSerializer(serializers.ModelSerializer):
             'id', 'product_number', 'name_ar', 'description', 'story',
             'categories', 'brand', 'fragrance_families',
             'gender', 'stock_type', 'bulk_ml_stock', 'occasion', 'vibe', 'main_image',
-            'is_featured', 'is_bestseller', 'is_new', 'is_active',
+            'is_featured', 'is_bestseller', 'is_new', 'is_active', 'show_price_in_list', 'show_stock',
             'variants'
         ]

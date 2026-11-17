@@ -88,7 +88,7 @@ const ProductDetail = () => {
     const handleAddToCart = async () => {
         if (!selectedVariant) return;
         if (quantity > selectedVariant.available_stock) {
-            toast.error(`عذراً، الكمية المتوفرة ${selectedVariant.available_stock} فقط`);
+            toast.error(product.show_stock ? `عذراً، الكمية المتوفرة ${selectedVariant.available_stock} فقط` : 'عذراً، الكمية المطلوبة غير متوفرة');
             return;
         }
         await addItem(selectedVariant.id, quantity);
@@ -278,7 +278,7 @@ const ProductDetail = () => {
                                     {selectedVariant?.available_stock > 0 ? (
                                         <span className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 dark:bg-green-900/30 text-green-600 rounded-2xl text-xs font-black ring-1 ring-green-100 dark:ring-green-900">
                                             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                            متوفر الآن ({selectedVariant.available_stock})
+                                            متوفر الآن{product.show_stock && ` (${selectedVariant.available_stock})`}
                                         </span>
                                     ) : (
                                         <span className="inline-flex items-center px-4 py-2 bg-red-50 dark:bg-red-900/30 text-red-500 rounded-2xl text-xs font-black ring-1 ring-red-100 dark:ring-red-900">تحت الطلب</span>

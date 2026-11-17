@@ -8,6 +8,7 @@ class Category(models.Model):
     description = models.TextField(blank=True, verbose_name="الوصف")
     order = models.PositiveIntegerField(default=0, verbose_name="الترتيب")
     is_active = models.BooleanField(default=True, verbose_name="نشط")
+    show_first = models.BooleanField(default=False, verbose_name="تظهر منتجاتها أولاً في صفحة المنتجات")
 
     class Meta:
         verbose_name = "الفئة"
@@ -84,6 +85,8 @@ class Product(models.Model):
     is_bestseller = models.BooleanField(default=False, verbose_name="الأكثر مبيعاً")
     is_new = models.BooleanField(default=False, verbose_name="جديد")
     is_active = models.BooleanField(default=True, verbose_name="نشط")
+    show_price_in_list = models.BooleanField(default=False, verbose_name="إظهار السعر في صفحة المنتجات")
+    show_stock = models.BooleanField(default=False, verbose_name="إظهار الكمية المتوفرة في صفحة المنتج")
 
     view_count = models.PositiveIntegerField(default=0, verbose_name="عدد المشاهدات")
     sales_count = models.PositiveIntegerField(default=0, verbose_name="عدد المبيعات")

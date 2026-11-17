@@ -20,6 +20,33 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import Modal from '../../components/common/Modal';
+import HomeSectionFields from '../../components/dashboard/HomeSectionFields';
+import { HOME_SECTIONS, contentForForm, contentForSave } from '../../components/dashboard/homeSections';
+
+const FIELD_LABELS = {
+    title: 'العنوان',
+    subtitle: 'العنوان الفرعي',
+    description_ar: 'الوصف',
+    button_text: 'نص الزر',
+    button_link: 'رابط الشريحة',
+    link: 'الرابط',
+    position: 'مكان البانر',
+    order: 'الترتيب',
+    image: 'الصورة',
+    image_mobile: 'صورة الجوال',
+};
+
+// Turns the server's field errors into one readable message, e.g. "الصورة: الملف ليس صورة".
+const saveErrorMessage = (err) => {
+    const data = err?.response?.data;
+    if (data && typeof data === 'object') {
+        const parts = Object.entries(data).map(([field, msgs]) =>
+            `${FIELD_LABELS[field] || field}: ${Array.isArray(msgs) ? msgs.join(' ') : msgs}`);
+        if (parts.length) return parts.join(' — ');
+    }
+    if (err?.response?.status === 413) return 'حجم الصورة كبير جداً';
+    return 'حدث خطأ أثناء حفظ البيانات';
+};
 
 const DashboardCMS = () => {
     const [slides, setSlides] = useState([]);
@@ -46,24 +73,11 @@ const DashboardCMS = () => {
     const [hpc, setHpc] = useState([]);
     const [isHpcModalOpen, setIsHpcModalOpen] = useState(false);
     const [editingHpcItem, setEditingHpcItem] = useState(null);
-    const [hpcFormData, setHpcFormData] = useState({
-        heading: '',
-        subtitle: '',
-        button_text: '',
-        button_link: '',
-        quote: '',
-        description: '',
-        cities: ''
-    });
+    const [hpcContent, setHpcContent] = useState({});
+    const [mobilePreview, setMobilePreview] = useState(null);
+    const [removeMobile, setRemoveMobile] = useState(false);
 
-    const sectionTypeLabels = {
-        features: 'المميزات',
-        stats: 'الإحصائيات',
-        vision: 'رؤيتنا',
-        categories: 'الفئات',
-        best_sellers: 'الأكثر مبيعاً',
-        featured_products: 'عطور مختارة'
-    };
+    const sectionLabel = (key) => HOME_SECTIONS[key]?.label || key;
 
     useEffect(() => {
         fetchCMSData();
@@ -110,6 +124,7 @@ const DashboardCMS = () => {
                 image_mobile: null
             });
             setImagePreview(item.image);
+            setMobilePreview(item.image_mobile || null);
         } else {
             setEditingItem(null);
             setFormData({
@@ -126,7 +141,9 @@ const DashboardCMS = () => {
                 image_mobile: null
             });
             setImagePreview(null);
+            setMobilePreview(null);
         }
+        setRemoveMobile(false);
         setIsModalOpen(true);
     };
 
@@ -162,13 +179,16 @@ const DashboardCMS = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const data = new FormData();
-        Object.keys(formData).forEach(key => {
-            if (key === 'image' || key === 'image_mobile') {
-                if (formData[key] instanceof File) data.append(key, formData[key]);
-            } else if (key !== 'image_mobile') {
-                data.append(key, formData[key] ?? '');
-            }
-        });
+        // Slides and banners have different fields; send only the ones this kind has.
+        const fields = activeTab === 'slides'
+            ? ['title', 'subtitle', 'description_ar', 'button_text', 'button_link', 'order', 'is_active']
+            : ['title', 'link', 'position', 'is_active'];
+        fields.forEach(key => data.append(key, formData[key] ?? ''));
+        if (formData.image instanceof File) data.append('image', formData.image);
+        if (activeTab === 'slides') {
+            if (formData.image_mobile instanceof File) data.append('image_mobile', formData.image_mobile);
+            else if (removeMobile) data.append('remove_image_mobile', 'true');
+        }
 
         try {
             if (editingItem) {
@@ -192,8 +212,8 @@ const DashboardCMS = () => {
             }
             handleCloseModal();
             fetchCMSData();
-        } catch {
-            toast.error('حدث خطأ أثناء حفظ البيانات');
+        } catch (err) {
+            toast.error(saveErrorMessage(err));
         }
     };
 
@@ -229,16 +249,7 @@ const DashboardCMS = () => {
 
     const handleOpenHpcModal = (item) => {
         setEditingHpcItem(item);
-        const content = item.content || {};
-        setHpcFormData({
-            heading: content.heading || '',
-            subtitle: content.subtitle || '',
-            button_text: content.button_text || '',
-            button_link: content.button_link || '',
-            quote: content.quote || '',
-            description: content.description || '',
-            cities: Array.isArray(content.cities) ? content.cities.join(', ') : content.cities || ''
-        });
+        setHpcContent(contentForForm(item.key, item.content));
         setIsHpcModalOpen(true);
     };
 
@@ -250,130 +261,14 @@ const DashboardCMS = () => {
     const handleHpcSubmit = async (e) => {
         e.preventDefault();
         if (!editingHpcItem) return;
-
-        const content = { ...hpcFormData };
-        if (editingHpcItem.key === 'vision') {
-            content.cities = content.cities ? content.cities.split(/[,،]/).map(c => c.trim()).filter(Boolean) : [];
-        }
-        if (['features', 'stats'].includes(editingHpcItem.key)) {
-            delete content.heading;
-            delete content.subtitle;
-            delete content.button_text;
-            delete content.button_link;
-            delete content.quote;
-            delete content.cities;
-        }
-        if (editingHpcItem.key === 'vision') {
-            delete content.heading;
-            delete content.subtitle;
-            delete content.button_text;
-            delete content.button_link;
-        }
-        if (['categories', 'best_sellers', 'featured_products'].includes(editingHpcItem.key)) {
-            delete content.quote;
-            delete content.description;
-            delete content.cities;
-        }
-
         try {
-            await cmsApi.updateHPC(editingHpcItem.id, { content });
+            await cmsApi.updateHPC(editingHpcItem.id, { content: contentForSave(editingHpcItem.key, hpcContent) });
             toast.success('تم تحديث القسم');
             handleCloseHpcModal();
             fetchCMSData();
         } catch {
             toast.error('حدث خطأ أثناء حفظ القسم');
         }
-    };
-
-    const renderHpcFormFields = () => {
-        if (!editingHpcItem) return null;
-        const key = editingHpcItem.key;
-
-        if (['features', 'stats'].includes(key)) {
-            return (
-                <div className="space-y-4">
-                    <p className="text-sm text-text-secondary dark:text-gold-400 bg-cream-50 dark:bg-dark-800 p-4 rounded-2xl border border-gold-100 dark:border-dark-600 font-bold">
-                        يتم إدارة محتوى هذا القسم من خلال لوحة التحكم. يمكنك تفعيله أو إلغاء تفعيله أو إعادة ترتيبه فقط.
-                    </p>
-                </div>
-            );
-        }
-
-        if (key === 'vision') {
-            return (
-                <div className="space-y-6">
-                    <div className="space-y-2">
-                        <label className="text-sm font-bold text-text-secondary dark:text-gold-400">المقولة</label>
-                        <textarea
-                            value={hpcFormData.quote}
-                            onChange={(e) => setHpcFormData({ ...hpcFormData, quote: e.target.value })}
-                            className="w-full bg-cream-50 dark:bg-dark-600 border border-gold-100 dark:border-dark-600 px-5 py-3.5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gold-500/20 text-text-primary dark:text-cream-50 h-24 resize-none"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-bold text-text-secondary dark:text-gold-400">الوصف</label>
-                        <textarea
-                            value={hpcFormData.description}
-                            onChange={(e) => setHpcFormData({ ...hpcFormData, description: e.target.value })}
-                            className="w-full bg-cream-50 dark:bg-dark-600 border border-gold-100 dark:border-dark-600 px-5 py-3.5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gold-500/20 text-text-primary dark:text-cream-50 h-24 resize-none"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-bold text-text-secondary dark:text-gold-400">المدن (مفصولة بفواصل)</label>
-                        <input
-                            type="text"
-                            value={hpcFormData.cities}
-                            onChange={(e) => setHpcFormData({ ...hpcFormData, cities: e.target.value })}
-                            className="w-full bg-cream-50 dark:bg-dark-600 border border-gold-100 dark:border-dark-600 px-5 py-3.5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gold-500/20 text-text-primary dark:text-cream-50"
-                            placeholder="طرابلس, بنغازي, مصراتة"
-                        />
-                    </div>
-                </div>
-            );
-        }
-
-        return (
-            <div className="space-y-6">
-                <div className="space-y-2">
-                    <label className="text-sm font-bold text-text-secondary dark:text-gold-400">العنوان الرئيسي</label>
-                    <input
-                        type="text"
-                        value={hpcFormData.heading}
-                        onChange={(e) => setHpcFormData({ ...hpcFormData, heading: e.target.value })}
-                        className="w-full bg-cream-50 dark:bg-dark-600 border border-gold-100 dark:border-dark-600 px-5 py-3.5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gold-500/20 text-text-primary dark:text-cream-50"
-                    />
-                </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-bold text-text-secondary dark:text-gold-400">العنوان الفرعي</label>
-                    <input
-                        type="text"
-                        value={hpcFormData.subtitle}
-                        onChange={(e) => setHpcFormData({ ...hpcFormData, subtitle: e.target.value })}
-                        className="w-full bg-cream-50 dark:bg-dark-600 border border-gold-100 dark:border-dark-600 px-5 py-3.5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gold-500/20 text-text-primary dark:text-cream-50"
-                    />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <label className="text-sm font-bold text-text-secondary dark:text-gold-400">نص الزر</label>
-                        <input
-                            type="text"
-                            value={hpcFormData.button_text}
-                            onChange={(e) => setHpcFormData({ ...hpcFormData, button_text: e.target.value })}
-                            className="w-full bg-cream-50 dark:bg-dark-600 border border-gold-100 dark:border-dark-600 px-5 py-3.5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gold-500/20 text-text-primary dark:text-cream-50"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-bold text-text-secondary dark:text-gold-400">رابط الزر</label>
-                        <input
-                            type="text"
-                            value={hpcFormData.button_link}
-                            onChange={(e) => setHpcFormData({ ...hpcFormData, button_link: e.target.value })}
-                            className="w-full bg-cream-50 dark:bg-dark-600 border border-gold-100 dark:border-dark-600 px-5 py-3.5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gold-500/20 text-sm font-poppins ltr text-text-primary dark:text-cream-50"
-                        />
-                    </div>
-                </div>
-            </div>
-        );
     };
 
     return (
@@ -475,9 +370,9 @@ const DashboardCMS = () => {
                                         </button>
                                     </div>
                                     <div>
-                                        <h3 className="font-bold text-text-primary dark:text-cream-50">{section.content?.heading || sectionTypeLabels[section.key] || section.key}</h3>
+                                        <h3 className="font-bold text-text-primary dark:text-cream-50">{section.content?.heading || sectionLabel(section.key)}</h3>
                                         <p className="text-xs text-text-secondary dark:text-gold-400 font-bold mt-1">
-                                            {sectionTypeLabels[section.key] || section.key} • الترتيب {section.order}
+                                            {sectionLabel(section.key)} • الترتيب {section.order}
                                         </p>
                                     </div>
                                 </div>
@@ -657,17 +552,17 @@ const DashboardCMS = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-sm font-bold text-text-secondary dark:text-gold-400 pr-1">العنوان الرئيسي</label>
+                                <label className="text-sm font-bold text-text-secondary dark:text-gold-400 pr-1">العنوان الرئيسي{activeTab === 'slides' && ' (اختياري)'}</label>
                                 <input
                                     type="text"
-                                    required
+                                    required={activeTab !== 'slides'}
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                     className="w-full bg-cream-50 dark:bg-dark-600 border border-gold-100 dark:border-dark-600 px-5 py-3.5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gold-500/20 text-text-primary dark:text-cream-50"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-bold text-text-secondary dark:text-gold-400 pr-1">العنوان الفرعي</label>
+                                <label className="text-sm font-bold text-text-secondary dark:text-gold-400 pr-1">العنوان الفرعي (اختياري)</label>
                                 <input
                                     type="text"
                                     value={formData.subtitle}
@@ -678,6 +573,18 @@ const DashboardCMS = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {activeTab === 'slides' ? (
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-text-secondary dark:text-gold-400 pr-1">الترتيب</label>
+                                <input
+                                    type="number"
+                                    required
+                                    value={formData.order}
+                                    onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) || 0 })}
+                                    className="w-full bg-cream-50 dark:bg-dark-600 border border-gold-100 dark:border-dark-600 px-5 py-3.5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gold-500/20 text-text-primary dark:text-cream-50"
+                                />
+                            </div>
+                            ) : (
                             <div className="space-y-2">
                                 <label className="text-sm font-bold text-text-secondary dark:text-gold-400 pr-1">الرابط (اختياري)</label>
                                 <input
@@ -688,20 +595,11 @@ const DashboardCMS = () => {
                                     placeholder="/products/perfumes"
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-bold text-text-secondary dark:text-gold-400 pr-1">الترتيب</label>
-                                <input
-                                    type="number"
-                                    required
-                                    value={formData.order}
-                                    onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) })}
-                                    className="w-full bg-cream-50 dark:bg-dark-600 border border-gold-100 dark:border-dark-600 px-5 py-3.5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-gold-500/20 text-text-primary dark:text-cream-50"
-                                />
-                            </div>
+                            )}
                             {activeTab === 'slides' ? (
                                 <>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-bold text-text-secondary dark:text-gold-400 pr-1">الوصف</label>
+                                        <label className="text-sm font-bold text-text-secondary dark:text-gold-400 pr-1">الوصف (اختياري)</label>
                                         <textarea
                                             value={formData.description_ar}
                                             onChange={(e) => setFormData({ ...formData, description_ar: e.target.value })}
@@ -709,8 +607,17 @@ const DashboardCMS = () => {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-bold text-text-secondary dark:text-gold-400 pr-1">صورة الجوال (اختياري)</label>
+                                        <label className="text-sm font-bold text-text-secondary dark:text-gold-400 pr-1">صورة الجوال الطولية (اختياري)</label>
+                                        <p className="text-xs text-text-muted dark:text-gold-400/60">تظهر على الجوال بدل الصورة العريضة. مقاس مناسب: 1080×1920.</p>
                                         <div className="relative group aspect-[9/16] w-48 rounded-3xl overflow-hidden bg-cream-50 dark:bg-dark-800 border-2 border-dashed border-gold-300 dark:border-dark-600 flex flex-col items-center justify-center transition-all hover:border-gold-400">
+                                            {mobilePreview ? (
+                                                <img src={mobilePreview} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                                            ) : (
+                                                <>
+                                                    <ImageIcon size={32} className="text-gold-300" />
+                                                    <p className="text-[10px] font-bold text-text-muted mt-1">انقر لاختيار صورة</p>
+                                                </>
+                                            )}
                                             <input
                                                 type="file"
                                                 accept="image/*"
@@ -718,16 +625,29 @@ const DashboardCMS = () => {
                                                     const file = e.target.files[0];
                                                     if (file) {
                                                         setFormData({ ...formData, image_mobile: file });
+                                                        setMobilePreview(URL.createObjectURL(file));
+                                                        setRemoveMobile(false);
                                                     }
                                                 }}
                                                 className="absolute inset-0 opacity-0 cursor-pointer"
                                             />
-                                            <ImageIcon size={32} className="text-gold-300" />
-                                            <p className="text-[10px] font-bold text-text-muted mt-1">انقر لاختيار صورة</p>
                                         </div>
+                                        {mobilePreview && (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setFormData({ ...formData, image_mobile: null });
+                                                    setMobilePreview(null);
+                                                    setRemoveMobile(true);
+                                                }}
+                                                className="text-xs font-bold text-rose-500 hover:underline"
+                                            >
+                                                حذف صورة الجوال
+                                            </button>
+                                        )}
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-bold text-text-secondary dark:text-gold-400 pr-1">نص الزر</label>
+                                        <label className="text-sm font-bold text-text-secondary dark:text-gold-400 pr-1">نص الزر (اختياري)</label>
                                         <input
                                             type="text"
                                             value={formData.button_text}
@@ -737,7 +657,8 @@ const DashboardCMS = () => {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-bold text-text-secondary dark:text-gold-400 pr-1">رابط الزر</label>
+                                        <label className="text-sm font-bold text-text-secondary dark:text-gold-400 pr-1">رابط الشريحة (اختياري)</label>
+                                        <p className="text-xs text-text-muted dark:text-gold-400/60">بدون نص زر، تصير الصورة كلها قابلة للضغط.</p>
                                         <input
                                             type="text"
                                             value={formData.button_link}
@@ -798,13 +719,13 @@ const DashboardCMS = () => {
 
             <Modal isOpen={isHpcModalOpen} onClose={handleCloseHpcModal} maxWidth="max-w-2xl">
                 <Modal.Header
-                    title={`تعديل القسم: ${sectionTypeLabels[editingHpcItem?.key] || editingHpcItem?.key}`}
+                    title={`تعديل القسم: ${sectionLabel(editingHpcItem?.key)}`}
                     subtitle="تخصيص محتوى القسم الظاهر في الصفحة الرئيسية"
                     onClose={handleCloseHpcModal}
                 />
                 <form onSubmit={handleHpcSubmit}>
                     <Modal.Body>
-                        {renderHpcFormFields()}
+                        {editingHpcItem && <HomeSectionFields sectionKey={editingHpcItem.key} content={hpcContent} setContent={setHpcContent} />}
                         <div className="flex items-center gap-3 bg-cream-50 dark:bg-dark-800 p-4 rounded-2xl border border-gold-100 dark:border-dark-600 mt-6">
                             <div className={`w-3 h-3 rounded-full ${editingHpcItem?.is_active ? 'bg-green-500' : 'bg-red-500'}`}></div>
                             <span className="text-sm font-bold text-text-primary dark:text-cream-50">

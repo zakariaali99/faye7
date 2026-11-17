@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { productsApi } from '../services/api';
+import { productsApi, cmsApi } from '../services/api';
+import { BannerStrip } from '../components/home/PromoBanner';
 import ProductCard from '../components/products/ProductCard';
 import Pagination from '../components/common/Pagination';
 import { Filter, ChevronDown, SlidersHorizontal, X, Tag, Award } from 'lucide-react';
@@ -120,6 +121,7 @@ const Products = () => {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [brands, setBrands] = useState([]);
+    const [banners, setBanners] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showMobileFilters, setShowMobileFilters] = useState(false);
     const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page')) || 1);
@@ -147,6 +149,9 @@ const Products = () => {
             }
         };
         fetchData();
+        cmsApi.getBanners()
+            .then(res => setBanners((res.data.results || res.data || []).filter(b => b.is_active)))
+            .catch(() => setBanners([]));
     }, []);
 
     useEffect(() => {
@@ -164,7 +169,8 @@ const Products = () => {
                 
                 const res = await productsApi.getAll(apiParams);
                 setProducts(res.data.results || res.data);
-                setTotalPages(Math.ceil((res.data.count || res.data.length) / 12));
+                const total = res.data.count ?? (Array.isArray(res.data) ? res.data.length : 0);
+                setTotalPages(Math.max(1, Math.ceil(total / 12)));
             } catch (error) {
                 console.error("Error fetching products", error);
                 if (error.response?.status === 404 && currentPage > 1) {
@@ -183,6 +189,13 @@ const Products = () => {
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [currentPage]);
+
+    // Name the chosen category and brand in the empty message, e.g. "no products in Niche from Dior".
+    const chosenCategory = categories.find(c => String(c.id) === String(filters.categories))?.name_ar;
+    const chosenBrand = brands.find(b => String(b.id) === String(filters.brand))?.name_ar;
+    const emptyMessage = chosenCategory || chosenBrand
+        ? `لا توجد منتجات${chosenCategory ? ` في تصنيف «${chosenCategory}»` : ''}${chosenBrand ? ` من ماركة «${chosenBrand}»` : ''}${filters.search ? ` تطابق «${filters.search}»` : ''}.`
+        : 'حاول تغيير فلاتر البحث للعثور على ما تبحث عنه';
 
     const setPage = (page) => {
         setCurrentPage(page);
@@ -224,10 +237,12 @@ const Products = () => {
                                 handleFilterChange={handleFilterChange}
                             />
                         </div>
+                        <BannerStrip banners={banners.filter(b => b.position === 'sidebar')} className="mt-6" />
                     </div>
 
                     {/* Main Content Area */}
                     <div className="flex-1">
+                        <BannerStrip banners={banners.filter(b => b.position === 'products_top')} className="mb-6" />
                         {/* Top Bar */}
                         <div className="bg-white dark:bg-dark-700 p-4 rounded-2xl border border-gold-100 dark:border-dark-500 shadow-sm mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
                             {/* Search Input */}
@@ -260,8 +275,8 @@ const Products = () => {
                                         className="w-full bg-white dark:bg-dark-700 border border-gold-100 dark:border-dark-500 px-4 py-2.5 rounded-xl appearance-none focus:outline-none focus:ring-2 focus:ring-gold-500/20 pr-10 text-text-primary dark:text-cream-50"
                                     >
                                         <option value="-created_at">الأحدث</option>
-                                        <option value="min_price">السعر: من الأقل</option>
-                                        <option value="-min_price">السعر: من الأعلى</option>
+                                        <option value="-sales_count">الأكثر مبيعاً</option>
+                                        <option value="-view_count">الأكثر مشاهدة</option>
                                     </select>
                                     <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-gold-500" size={18} />
                                 </div>
@@ -292,7 +307,7 @@ const Products = () => {
                             <div className="bg-white dark:bg-dark-700 rounded-3xl p-8 md:p-20 text-center border border-gold-100 dark:border-dark-500 shadow-sm">
                                 <Filter size={48} className="mx-auto text-gold-200 dark:text-dark-600 mb-4" />
                                 <h3 className="text-xl font-bold text-text-primary dark:text-cream-50 mb-2">لا توجد منتجات</h3>
-                                <p className="text-text-secondary dark:text-gold-400">حاول تغيير فلاتر البحث للعثور على ما تبحث عنه</p>
+                                <p className="text-text-secondary dark:text-gold-400">{emptyMessage}</p>
                                 <button
                                     onClick={() => {
                                         setCurrentPage(1);

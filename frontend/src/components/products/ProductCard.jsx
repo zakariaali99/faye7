@@ -40,7 +40,7 @@ const ProductCard = ({ product }) => {
                 <h3 className="text-[15px] md:text-base leading-snug line-clamp-2 group-hover:underline underline-offset-4">
                     {product.name_ar}
                 </h3>
-                {product.min_price != null && (
+                {product.show_price_in_list && product.min_price != null && (
                     <p className="text-[15px] text-[var(--t-ink)]">
                         <span className="text-[var(--t-muted)] text-xs ml-1">من</span>
                         {product.min_price} د.ل
